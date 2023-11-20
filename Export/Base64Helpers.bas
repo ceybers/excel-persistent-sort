@@ -1,5 +1,5 @@
 Attribute VB_Name = "Base64Helpers"
-'@Folder("VBAProject")
+'@Folder "Helpers"
 Option Explicit
 
 Function StringtoBase64(ByVal StringValue As String) As String

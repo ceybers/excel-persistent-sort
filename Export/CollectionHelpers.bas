@@ -1,5 +1,5 @@
 Attribute VB_Name = "CollectionHelpers"
-'@Folder("VBAProject")
+'@Folder "Helpers"
 Option Explicit
 
 Public Function ConcatCollection(ByVal Collection As Collection, ByVal Delimiter As String) As String

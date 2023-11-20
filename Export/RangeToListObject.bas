@@ -1,5 +1,5 @@
 Attribute VB_Name = "RangeToListObject"
-'@Folder("VBAProject")
+'@Folder "Helpers"
 Option Explicit
 
 Public Function ListColumnExists(ByVal ListObject As ListObject, ByVal ListColumnName As String) As Boolean
