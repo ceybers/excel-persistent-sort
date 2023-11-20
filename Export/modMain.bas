@@ -3,9 +3,18 @@ Attribute VB_Name = "modMain"
 Option Explicit
 
 Public Sub TestMVVM()
+    ThisWorkbook.Worksheets(1).Activate
+    ThisWorkbook.Worksheets(1).Range("A2").Activate
+    
     Dim ViewModel As SortOrderViewModel
     Set ViewModel = New SortOrderViewModel
-    ViewModel.Load ActiveWorkbook
+    
+    Dim SelectedListObject As ListObject
+    If Not Selection.ListObject Is Nothing Then
+        ViewModel.Load Selection.ListObject
+    Else
+        Exit Sub
+    End If
     
     Dim View As frmSortOrderView
     Set View = New frmSortOrderView
@@ -14,16 +23,16 @@ Public Sub TestMVVM()
     Set ViewAsInterface = View
     
     If ViewAsInterface.ShowDialog(ViewModel) Then
-        Debug.Print "ShowDialog = TRUE"
+        'Debug.Print "ShowDialog = TRUE"
     Else
-        Debug.Print "ShowDialog = FALSE"
+        'Debug.Print "ShowDialog = FALSE"
     End If
     
 End Sub
 
 Public Sub TestA()
     Dim lo As ListObject
-    Set lo = ThisWorkbook.Worksheets(1).ListObjects(1)
+    Set lo = ThisWorkbook.Worksheets(2).ListObjects(1)
     
     Dim ASortOrderState As SortOrderState
     Set ASortOrderState = New SortOrderState

@@ -10,6 +10,8 @@ Attribute VB_Exposed = False
 '@Folder "SortOrderState"
 Option Explicit
 
+Private Const TRIM_FIELD_NAME_LENGTH As Long = 16
+
 Private Type TState
     WorksheetName As String
     ListObjectName As String
@@ -153,4 +155,21 @@ Public Function ToBase64() As String
     Result = Left$(Result, Len(Result) - 1)
     
     ToBase64 = Result
+End Function
+
+Public Function GetCaption()
+    Dim Result As String
+    
+    Dim SortFieldState As SortFieldState
+    For Each SortFieldState In This.SortFields
+        Dim FieldName As String
+        FieldName = SortFieldState.ColumnName
+        If Len(FieldName) > TRIM_FIELD_NAME_LENGTH Then
+            FieldName = Left$(FieldName, TRIM_FIELD_NAME_LENGTH - 3) & "..."
+        End If
+        Result = Result & FieldName & " > "
+    Next SortFieldState
+    
+    Result = Left$(Result, Len(Result) - 3)
+    GetCaption = Result
 End Function

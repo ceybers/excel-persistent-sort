@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSortOrderView 
    Caption         =   "Sort Order Manager"
-   ClientHeight    =   4875
+   ClientHeight    =   5820
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   4740
+   ClientWidth     =   9360.001
    OleObjectBlob   =   "frmSortOrderView.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -13,17 +13,44 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'@Folder "MVVM.TableSplit.View"
+'@Folder "MVVM.SortOrder.View"
 Option Explicit
 Implements IView
 
+Private Const IMAGEMSO_SIZE As Long = 16
+Private Const IMAGEMSO_NAMES As String = "SortUp,SortDown,SortDialog,TableInsert,HeaderFooterSheetNameInsert,CancelRequest,SendCopyFlag,TableStyleColumnHeaders,TableStyleRowHeaders"
+
 Private Type TState
     IsCancelled As Boolean
+    ViewModel As SortOrderViewModel
 End Type
 Private This As TState
 
 Private Sub cmbClose_Click()
     OnCancel
+End Sub
+
+Private Sub cmbRemove_Click()
+    If vbNo = MsgBox("Remove this Sort Order state?", vbExclamation + vbYesNo + vbDefaultButton2) Then
+        Exit Sub
+    End If
+    
+    Debug.Assert Not Me.lvSortOrders.SelectedItem Is Nothing
+    Dim Index As Long
+    Index = Me.lvSortOrders.SelectedItem.Index
+    This.ViewModel.RemoveByIndex Index
+    InitalizeFromViewModel
+    Set Me.lvSortOrders.SelectedItem = Me.lvSortOrders.ListItems.Item(Index - 1)
+    Me.lvSortOrders.SetFocus
+End Sub
+
+Private Sub cmbRemoveAll_Click()
+    If vbNo = MsgBox("Remove ALL Sort Order states?", vbExclamation + vbYesNo + vbDefaultButton2) Then
+        Exit Sub
+    End If
+    
+    This.ViewModel.RemoveAll
+    InitalizeFromViewModel
 End Sub
 
 Private Sub lvSortOrders_DblClick()
@@ -43,9 +70,9 @@ Private Sub OnCancel()
 End Sub
 
 Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
-    'Set mViewModel = ViewModel
+    Set This.ViewModel = ViewModel
     
-    'SetLabelPictures
+    InitializeListView
     InitalizeFromViewModel
     This.IsCancelled = False
     
@@ -55,35 +82,72 @@ Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
 End Function
 
 Private Sub InitalizeFromViewModel()
-    InitializeListView
-    Dim SortOrders As Collection
-    Set SortOrders = GetSavedSortOrders
+    Me.lvSortOrders.ListItems.Clear
     
-    Dim Item As Variant
-    Dim ListItem As ListItem
-    For Each Item In SortOrders
-        Set ListItem = Me.lvSortOrders.ListItems.Add(text:=Split(Item, ":")(0))
-        ListItem.ListSubItems.Add text:=Split(Item, ":")(1)
-        ListItem.ListSubItems.Add text:=Split(Item, ":")(2)
-    Next Item
+    Dim SortOrderState As SortOrderState
+    For Each SortOrderState In This.ViewModel.SortOrderStates
+        LoadSortOrderStateToListView SortOrderState, Me.lvSortOrders
+    Next SortOrderState
 End Sub
 
 Private Sub InitializeListView()
+    Dim ImageList32 As ImageList
+    Set ImageList32 = GetImageList
+
     With Me.lvSortOrders
         .View = lvwReport
-        .ListItems.Clear
         .ColumnHeaders.Clear
-        .ColumnHeaders.Add text:="Sheet"
-        .ColumnHeaders.Add text:="Table"
-        .ColumnHeaders.Add text:="Columns"
+        .ColumnHeaders.Add text:="Sheet Name", Width:=80
+        .ColumnHeaders.Add text:="Table Name", Width:=80
+        .ColumnHeaders.Add text:="Column Sort Order", Width:=240
         .Gridlines = True
         .HotTracking = False
         .FullRowSelect = True
+        Set .SmallIcons = ImageList32
     End With
 End Sub
 
+Private Function GetImageList() As ImageList
+    Dim Result As ImageList
+    Set Result = New ImageList
+    Result.ImageWidth = IMAGEMSO_SIZE
+    Result.ImageHeight = IMAGEMSO_SIZE
+    
+    Dim ImageNameArray() As String
+    ImageNameArray = Split(IMAGEMSO_NAMES, ",")
+    
+    Dim ImageName As Variant
+    For Each ImageName In ImageNameArray
+        AddImageToImageList Result, ImageName
+    Next ImageName
+    
+    Set GetImageList = Result
+End Function
+
+Private Function AddImageToImageList(ByVal ImageList As ImageList, ByVal ImageMso As String)
+    ImageList.ListImages.Add Key:=ImageMso, Picture:=Application.CommandBars.GetImageMso(ImageMso, IMAGEMSO_SIZE, IMAGEMSO_SIZE)
+End Function
+
 Private Sub TryApplySortOrder()
     If Me.lvSortOrders.SelectedItem Is Nothing Then Exit Sub
-    MsgBox Me.lvSortOrders.SelectedItem.text
+    This.ViewModel.ApplySortOrderState Me.lvSortOrders.SelectedItem.Index
     Me.Hide
+End Sub
+
+Private Sub LoadSortOrderStateToListView(ByVal SortOrderState As SortOrderState, ByVal ListView As ListView)
+    Dim ListItem As ListItem
+    With ListView
+        Set ListItem = .ListItems.Add(text:=SortOrderState.WorksheetName)
+        ListItem.SmallIcon = "HeaderFooterSheetNameInsert"
+        ListItem.ListSubItems.Add text:=SortOrderState.ListObjectName, ReportIcon:="TableStyleRowHeaders"
+        ListItem.ListSubItems.Add text:=SortOrderState.GetCaption, ReportIcon:="SortDialog"
+    End With
+    
+    If Not SortOrderState.CanApply(This.ViewModel.ListObject) Then
+        ListItem.ListSubItems.Item(2).ReportIcon = "CancelRequest"
+    End If
+    
+    If SortOrderState.ListObjectName = This.ViewModel.ListObject.Name Then
+        ListItem.ListSubItems.Item(1).ReportIcon = "TableStyleColumnHeaders"
+    End If
 End Sub
