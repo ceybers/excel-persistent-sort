@@ -13,14 +13,48 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'@Folder "MVVM.View"
+'@Folder "MVVM.TableSplit.View"
 Option Explicit
+Implements IView
+
+Private Type TState
+    IsCancelled As Boolean
+End Type
+Private This As TState
+
+Private Sub cmbClose_Click()
+    OnCancel
+End Sub
 
 Private Sub lvSortOrders_DblClick()
     TryApplySortOrder
 End Sub
 
-Private Sub UserForm_Initialize()
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+    If CloseMode = VbQueryClose.vbFormControlMenu Then
+        Cancel = True
+        OnCancel
+    End If
+End Sub
+
+Private Sub OnCancel()
+    This.IsCancelled = True
+    Me.Hide
+End Sub
+
+Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
+    'Set mViewModel = ViewModel
+    
+    'SetLabelPictures
+    InitalizeFromViewModel
+    This.IsCancelled = False
+    
+    Me.Show
+    
+    IView_ShowDialog = Not This.IsCancelled
+End Function
+
+Private Sub InitalizeFromViewModel()
     InitializeListView
     Dim SortOrders As Collection
     Set SortOrders = GetSavedSortOrders
