@@ -52,7 +52,7 @@ Private Function ISettings_GetFlag(ByVal FlagName As String) As Boolean
     Set Result = GetCustomXMLPart.SelectSingleNode(XPath)
     
     If Not Result Is Nothing Then
-        Select Case UCase$(Result.Text)
+        Select Case UCase$(Result.text)
             Case TRUE_SYMBOL:
                 ISettings_GetFlag = True
             Case FALSE_SYMBOL:
@@ -78,7 +78,7 @@ Private Function ISettings_GetSetting(ByVal SettingName As String) As String
     Set Result = GetCustomXMLPart.SelectSingleNode(XPath)
     
     If Not Result Is Nothing Then
-        ISettings_GetSetting = Result.Text
+        ISettings_GetSetting = Result.text
     End If
 End Function
 
@@ -101,7 +101,7 @@ Private Function ISettings_GetCollection(ByVal CollectionName As String) As Coll
     If Not Results Is Nothing Then
         Dim Item As CustomXMLNode
         For Each Item In Results
-            ISettings_GetCollection.Add Item:=Item.Text
+            ISettings_GetCollection.Add Item:=Item.text
         Next
     End If
 End Function
@@ -137,7 +137,6 @@ End Function
 
 Public Sub Load()
 End Sub
-
 
 Private Property Get RootNode() As String
     RootNode = Mid$(This.XPathPrefix, 2, InStr(2, This.XPathPrefix, "/") - 2)
