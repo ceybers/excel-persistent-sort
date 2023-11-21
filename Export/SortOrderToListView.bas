@@ -29,8 +29,8 @@ Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal ListView As ListVie
     ListView.ListItems.Clear
     If ViewModel.SelectedSortState Is Nothing Then Exit Sub
     
-   Dim SortFieldState As SortFieldState
-    For Each SortFieldState In ViewModel.SelectedSortState.SortFields
+    Dim SortFieldState As SortFieldState
+    For Each SortFieldState In ViewModel.SelectedSortState.sortfields
         LoadSortFieldStateToListView ListView, SortFieldState
     Next SortFieldState
 End Sub
@@ -50,3 +50,4 @@ Private Sub LoadSortFieldStateToListView(ByVal ListView As ListView, ByVal SortF
         ListItem.SmallIcon = MSO_COLUMN_NOT_EXISTS
     End If
 End Sub
+

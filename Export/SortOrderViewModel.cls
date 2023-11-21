@@ -171,19 +171,10 @@ Public Sub RemoveSelected()
             This.SortOrderStates.Remove i
         End If
     Next i
-    
-    Dim SavedCollection As Collection
-    Set SavedCollection = This.Settings.Workbook.GetCollection(SETTING_COLLECTION_NAME)
-    For i = SavedCollection.Count To 1 Step -1
-        If SavedCollection.Item(i) = This.SelectedSortState.ToBase64 Then
-            SavedCollection.Remove i
-        End If
-    Next i
-    
-    This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, SavedCollection
-    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 
     Set This.SelectedSortState = Nothing
+    
+    SaveSortOrderStates
 End Sub
 
 Public Sub RemoveAll()
@@ -191,20 +182,21 @@ Public Sub RemoveAll()
     
     CollectionHelpers.CollectionClear This.SortOrderStates
     
-    Dim EmptyCollection As Collection
-    Set EmptyCollection = New Collection
-    This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, EmptyCollection
-    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
+    SaveSortOrderStates
 End Sub
 
 Public Function CanSave() As Boolean
+    CanSave = Not Exists(CurrentSortState)
+End Function
+
+Private Function Exists(ByVal SortOrderState As SortOrderState) As Boolean
     Dim RHSSortOrderState As SortOrderState
-    For Each RHSSortOrderState In This.SortOrderStates
-        If CurrentSortState.Equals(RHSSortOrderState) Then
+    For Each RHSSortOrderState In SortOrderStates
+        If SortOrderState.Equals(RHSSortOrderState) Then
+            Exists = True
             Exit Function
         End If
     Next RHSSortOrderState
-    CanSave = True
 End Function
 
 Public Function TrySelect(ByVal Key As String) As Boolean
@@ -229,15 +221,9 @@ End Function
 Public Sub Save()
     Debug.Assert Not CurrentSortState Is Nothing
     
-    Dim SavedCollection As Collection
-    Set SavedCollection = This.Settings.Workbook.GetCollection(SETTING_COLLECTION_NAME)
+    This.SortOrderStates.Add Item:=CurrentSortState
     
-    SavedCollection.Add Item:=CurrentSortState.ToBase64
-    
-    This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, SavedCollection
-    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
-    
-    Reload
+    SaveSortOrderStates
 End Sub
 
 Private Function IsSortOrderStateOrphaned(ByVal SortOrderState As SortOrderState)
@@ -275,6 +261,62 @@ Private Sub AssociateSortOrderState(ByVal SortOrderState As SortOrderState)
             NewCollection.Add SortOrderString
         End If
     Next SortOrderString
+    
+    This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, NewCollection
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
+End Sub
+
+Public Sub TryImport(ByVal SortOrderStateString As String)
+    Dim SortOrderState As SortOrderState
+    Set SortOrderState = New SortOrderState
+    SortOrderState.LoadFromString SortOrderStateString, This.ListObject
+    
+    If Exists(SortOrderState) Then
+        Exit Sub
+    End If
+    
+    This.SortOrderStates.Add Item:=SortOrderState
+    
+    SaveSortOrderStates
+End Sub
+
+Public Function CanPrune() As Boolean
+    Dim i As Long
+    For i = This.SortOrderStates.Count To 1 Step -1
+        If Not ListObjectHelpers.ListObjectExists(This.Workbook, This.SortOrderStates(i).ListObjectName) Then
+            CanPrune = True
+            Exit Function
+        End If
+    Next i
+End Function
+
+Public Sub Prune()
+    Dim ItemsToDelete As Collection
+    Set ItemsToDelete = New Collection
+    
+    Dim i As Long
+    For i = This.SortOrderStates.Count To 1 Step -1
+        If Not ListObjectHelpers.ListObjectExists(This.Workbook, This.SortOrderStates(i).ListObjectName) Then
+            ItemsToDelete.Add i
+        End If
+    Next i
+    
+    Dim Index As Variant
+    For Each Index In ItemsToDelete
+        This.SortOrderStates.Remove Index
+    Next Index
+    
+    SaveSortOrderStates
+End Sub
+
+Private Sub SaveSortOrderStates()
+    Dim NewCollection As Collection
+    Set NewCollection = New Collection
+    
+    Dim SortOrderState As SortOrderState
+    For Each SortOrderState In This.SortOrderStates
+        NewCollection.Add SortOrderState.ToBase64
+    Next SortOrderState
     
     This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, NewCollection
     This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())

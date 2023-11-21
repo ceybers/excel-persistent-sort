@@ -28,3 +28,4 @@ Private Sub AddImageToImageList(ByVal ImageList As ImageList, ByVal ImageMso As 
     Set Picture = Application.CommandBars.GetImageMso(ImageMso, IMAGEMSO_SIZE, IMAGEMSO_SIZE)
     ImageList.ListImages.Add Key:=ImageMso, Picture:=Picture
 End Sub
+

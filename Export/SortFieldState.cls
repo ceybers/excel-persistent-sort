@@ -50,3 +50,4 @@ End Property
 Public Property Let Exists(ByVal vNewValue As Boolean)
     This.Exists = vNewValue
 End Property
+

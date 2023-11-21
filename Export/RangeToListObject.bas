@@ -29,3 +29,4 @@ Private Function RangeToListHeader(ByVal ListObject As ListObject, ByVal Range A
     
     RangeToListHeader = Result
 End Function
+

@@ -21,7 +21,6 @@ End Function
 
 '@Description "Returns True if a ListObject with the given name exists in the given Workbook."
 Public Function ListObjectExists(ByVal Workbook As Workbook, ByVal ListObjectName As String) As Boolean
-Attribute ListObjectExists.VB_Description = "Returns True if a ListObject with the given name exists in the given Workbook."
     Dim AllListObjects As Collection
     Set AllListObjects = GetAllListObjects(Workbook)
     
@@ -44,3 +43,4 @@ Public Function HasListColumn(ByVal ListObject As ListObject, ByVal ListColumnNa
         End If
     Next ListColumn
 End Function
+

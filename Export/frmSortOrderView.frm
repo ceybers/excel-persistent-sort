@@ -20,6 +20,7 @@ Implements IView
 Private Const MSG_TITLE As String = "Persistent Sort Order Tool"
 Private Const MSG_REMOVE_STATE As String = "Remove this Sort Order state?"
 Private Const MSG_REMOVE_ALL_STATES As String = "Remove ALL Sort Order states?"
+Private Const MSG_EXPORT_SORTORDER As String = "Sort Order State in Base64 format:"
 
 Private Type TState
     IsCancelled As Boolean
@@ -30,6 +31,13 @@ Private This As TState
 
 Private Sub cboCloseOnApply_Change()
     This.ViewModel.DoCloseOnApply = Me.cboCloseOnApply.Value
+End Sub
+
+Private Sub cboImport_Click()
+    Dim SortOrderStateString As String
+    SortOrderStateString = InputBox(MSG_EXPORT_SORTORDER, MSG_TITLE)
+    This.ViewModel.TryImport SortOrderStateString
+    UpdateControls
 End Sub
 
 Private Sub cboPartialApply_Click()
@@ -58,6 +66,16 @@ End Sub
 
 Private Sub cmbClose_Click()
     OnCancel
+End Sub
+
+Private Sub cmbExport_Click()
+    InputBox MSG_EXPORT_SORTORDER, MSG_TITLE, This.ViewModel.SelectedSortState.ToBase64
+End Sub
+
+Private Sub cmbPrune_Click()
+    This.ViewModel.Prune
+    
+    UpdateControls
 End Sub
 
 Private Sub cmbRemove_Click()
@@ -149,6 +167,7 @@ Private Sub UpdateControls()
     UpdateSelectedTable
     UpdateTreeView
     UpdateListView
+    Me.cmbClose.SetFocus
 End Sub
 
 Private Sub UpdateSelectedTable()
@@ -163,7 +182,7 @@ End Sub
 Private Sub UpdateTreeView()
     SortOrderToTreeView.Load This.ViewModel, Me.tvStates
     
-    Me.cmbPrune.Enabled = (This.ViewModel.SortOrderStates.Count > 0) ' NYI
+    Me.cmbPrune.Enabled = This.ViewModel.CanPrune
     Me.cmbRemove.Enabled = False
     Me.cmbRemoveAll.Enabled = (This.ViewModel.SortOrderStates.Count > 0)
 End Sub
@@ -172,8 +191,11 @@ Private Sub UpdateListView()
     SortOrderToListView.Load This.ViewModel, Me.lvPreview
     Me.cmbApply.Caption = "Apply"
     Me.cmbApply.Enabled = False
+    Me.cmbExport.Enabled = False
     Me.cmbRemove.Enabled = False
+    
     If This.ViewModel.SelectedSortState Is Nothing Then Exit Sub
+    Me.cmbExport.Enabled = True
     
     If This.ViewModel.SelectedSortState.CanApply(This.ViewModel.ListObject) Then
         Me.cmbApply.Caption = "Apply"
@@ -219,5 +241,3 @@ End Sub
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
     Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
 End Sub
-
-

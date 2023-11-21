@@ -122,9 +122,9 @@ Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal
                                       Key:=SortOrderState.ToBase64, _
                                       text:=SortOrderState.GetCaption, _
                                       Image:=MSO_SORTORDER)
-       If TreeView.SelectedItem Is Nothing Then
-        Node.Selected = True
-       End If
+        If TreeView.SelectedItem Is Nothing Then
+            Node.Selected = True
+        End If
        
         If Not SortOrderState.CanApply(ViewModel.ListObject) Then
             Node.ForeColor = GREY_TEXT_COLOR
@@ -205,3 +205,5 @@ Private Sub TrySelectSelectedNode(ByVal ViewModel As SortOrderViewModel, ByVal T
         ViewModel.TrySelect TreeView.SelectedItem.Key
     End If
 End Sub
+
+

@@ -16,13 +16,13 @@ Private Const NO_SORT_ORDER As String = "(no sort order)"
 Private Type TState
     WorksheetName As String
     ListObjectName As String
-    SortFields As Collection
+    sortfields As Collection
 End Type
 
 Private This As TState
 
 Public Property Get HasSortOrder() As Boolean
-    HasSortOrder = (This.SortFields.Count > 0)
+    HasSortOrder = (This.sortfields.Count > 0)
 End Property
 
 Public Property Get WorksheetName() As String
@@ -41,12 +41,12 @@ Public Property Let ListObjectName(ByVal vNewValue As String)
     This.ListObjectName = vNewValue
 End Property
 
-Public Property Get SortFields() As Collection
-    Set SortFields = This.SortFields
+Public Property Get sortfields() As Collection
+    Set sortfields = This.sortfields
 End Property
 
 Private Sub Class_Initialize()
-    Set This.SortFields = New Collection
+    Set This.sortfields = New Collection
 End Sub
 
 Public Sub LoadFromListObject(ByVal ListObject As ListObject)
@@ -55,10 +55,10 @@ Public Sub LoadFromListObject(ByVal ListObject As ListObject)
     This.ListObjectName = ListObject.Name
     
     Dim i As Long
-    For i = 1 To ListObject.Sort.SortFields.Count
-        Dim SortField As SortField
-        Set SortField = ListObject.Sort.SortFields.Item(i)
-        AddSortField ListObject, SortField, i
+    For i = 1 To ListObject.sort.sortfields.Count
+        Dim sortfield As sortfield
+        Set sortfield = ListObject.sort.sortfields.Item(i)
+        AddSortField ListObject, sortfield, i
     Next i
 End Sub
 
@@ -81,8 +81,8 @@ End Sub
 Public Function CanApply(ByVal ListObject As ListObject) As Boolean
     Dim SortFieldState As SortFieldState
     
-    For Each SortFieldState In This.SortFields
-        If ListColumnExists(ListObject, SortFieldState.ColumnName) Then
+    For Each SortFieldState In This.sortfields
+        If ListObjectHelpers.HasListColumn(ListObject, SortFieldState.ColumnName) Then
             CanApply = True
             Exit Function
         End If
@@ -94,21 +94,21 @@ Public Function IsPartialMatch(ByVal ListObject As ListObject) As Boolean
     
     Dim n As Long
     
-    For Each SortFieldState In This.SortFields
-        If ListColumnExists(ListObject, SortFieldState.ColumnName) Then
+    For Each SortFieldState In This.sortfields
+        If ListObjectHelpers.HasListColumn(ListObject, SortFieldState.ColumnName) Then
             n = n + 1
         End If
     Next SortFieldState
     
-    IsPartialMatch = (n > 0) And (n < This.SortFields.Count)
+    IsPartialMatch = (n > 0) And (n < This.sortfields.Count)
 End Function
 
 Public Function Apply(ByVal ListObject As ListObject) As Boolean
-    With ListObject.Sort
-        .SortFields.Clear
+    With ListObject.sort
+        .sortfields.Clear
         
         Dim SortFieldState As SortFieldState
-        For Each SortFieldState In This.SortFields
+        For Each SortFieldState In This.sortfields
             ApplySortFieldState ListObject, SortFieldState
         Next SortFieldState
         
@@ -121,31 +121,31 @@ Public Function Apply(ByVal ListObject As ListObject) As Boolean
 End Function
 
 Private Sub ApplySortFieldState(ByVal ListObject As ListObject, ByVal SortFieldState As SortFieldState)
-    If Not ListColumnExists(ListObject, SortFieldState.ColumnName) Then
+    If Not ListObjectHelpers.HasListColumn(ListObject, SortFieldState.ColumnName) Then
         Exit Sub
     End If
     
     Dim KeyRange As Range
     Set KeyRange = ListObject.ListColumns.Item(SortFieldState.ColumnName).DataBodyRange
     
-    ListObject.Sort.SortFields.Add Key:=KeyRange, Order:=SortFieldState.SortOrder
+    ListObject.sort.sortfields.Add Key:=KeyRange, Order:=SortFieldState.SortOrder
 End Sub
 
-Private Sub AddSortField(ByVal ListObject As ListObject, ByVal SortField As SortField, ByVal Index As Long)
-    If SortField.SortOn <> xlSortOnValues Then Exit Sub
+Private Sub AddSortField(ByVal ListObject As ListObject, ByVal sortfield As sortfield, ByVal Index As Long)
+    If sortfield.SortOn <> xlSortOnValues Then Exit Sub
     Dim SortFieldState As SortFieldState
     Set SortFieldState = New SortFieldState
     
     Dim HeaderName As String
-    TryRangeToListHeader ListObject, SortField.Key, HeaderName
+    TryRangeToListHeader ListObject, sortfield.Key, HeaderName
     
     With SortFieldState
         .ColumnName = HeaderName
-        .SortOrder = SortField.Order
+        .SortOrder = sortfield.Order
         .Index = Index
     End With
     
-    This.SortFields.Add Item:=SortFieldState
+    This.sortfields.Add Item:=SortFieldState
 End Sub
 
 Private Sub AddSortFieldSerialized(ByVal SerializedSortField As String, ByVal Index As Long, ByVal ListObject As ListObject)
@@ -162,7 +162,7 @@ Private Sub AddSortFieldSerialized(ByVal SerializedSortField As String, ByVal In
         .Exists = ListObjectHelpers.HasListColumn(ListObject, .ColumnName)
     End With
     
-    This.SortFields.Add Item:=SortFieldState
+    This.sortfields.Add Item:=SortFieldState
 End Sub
 
 Public Function ToBase64() As String
@@ -171,7 +171,7 @@ Public Function ToBase64() As String
     Result = Result & This.ListObjectName & ":"
     
     Dim SortFieldState As SortFieldState
-    For Each SortFieldState In This.SortFields
+    For Each SortFieldState In This.sortfields
         Result = Result & StringtoBase64(SortFieldState.ColumnName) & "," & CStr(SortFieldState.SortOrder) & ";"
     Next SortFieldState
     
@@ -184,7 +184,7 @@ Public Function GetCaption() As String
     Dim Result As String
     
     Dim SortFieldState As SortFieldState
-    For Each SortFieldState In This.SortFields
+    For Each SortFieldState In This.sortfields
         Dim FieldName As String
         FieldName = SortFieldState.ColumnName
         If Len(FieldName) > TRIM_FIELD_NAME_LENGTH Then
@@ -204,3 +204,4 @@ End Function
 Public Function Equals(ByVal RHS As SortOrderState) As Boolean
     Equals = (Me.ToBase64 = RHS.ToBase64)
 End Function
+

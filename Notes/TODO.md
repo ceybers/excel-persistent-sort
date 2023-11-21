@@ -7,7 +7,7 @@
 ## TreeView
 - [x] Target ListObject should always be first on the tree.
 - [x] Orphaned ListObject should always be last on the tree.
-- [ ] Initially select first Sort Order State that can be applied.
+- [x] Initially select first Sort Order State that can be applied.
 - [x] Highlight Sort Order State if it is current already applied.
 - [x] List Current Sort State in the Tree View so we can see the list of fields.
 - [x] Apply by double clicking TreeView Node. 
@@ -18,16 +18,19 @@
 - [x] Show list of fields in a Sort Order State.
 - [x] Indicate columns not present in target ListObject.
 - [x] Indicate direction of sort order.
-## Features
-- [x] Apply selected Sort Order State.
-- [ ] Prune orphaned Sort Order States.
-- [x] Remove selected Sort Order State.
-- [x] Remove all Sort Order States.
-- [ ] Allow viewing Sort Order State in Base64 format.
-- [ ] Allow adding Sort Order State via textbox in Base64 format.
 ## Options
 - [x] Re-associate Sort Order State when applying an orphaned state to a ListObject.
 - [x] Option to show/hide partial matches.
 - [x] Option to allow/prohibit partial apply.
 - [x] Option to automatically close after applying.
 - [x] Default values if no CustomXML found.
+## Features
+- [x] Apply selected Sort Order State.
+- [x] Prune orphaned Sort Order States.
+- [x] Remove selected Sort Order State.
+- [x] Remove all Sort Order States.
+- [x] Allow viewing Sort Order State in Base64 format.
+- [x] Allow adding Sort Order State via textbox in Base64 format.
+- [ ] Sort on Cell Color, Font Color, and Icon
+- [ ] Sort Order using Custom List
+
