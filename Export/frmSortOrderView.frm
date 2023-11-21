@@ -17,18 +17,11 @@ Attribute VB_Exposed = False
 Option Explicit
 Implements IView
 
-Private Const IMAGEMSO_SIZE As Long = 16
-Private Const IMAGEMSO_NAMES As String = "SortUp,SortDown,SortDialog,TableInsert,HeaderFooterSheetNameInsert,CancelRequest,SendCopyFlag,TableStyleColumnHeaders,TableStyleRowHeaders"
-
 Private Type TState
     IsCancelled As Boolean
     ViewModel As SortOrderViewModel
 End Type
 Private This As TState
-
-Private Sub cmbApply_Click()
-
-End Sub
 
 Private Sub cmbClose_Click()
     OnCancel
@@ -91,6 +84,24 @@ Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
 End Function
 
 Private Sub InitalizeFromViewModel()
+    ' Update frmSelectedTable
+    Me.txtTableName = This.ViewModel.CurrentSortState.ListObjectName
+    Me.txtSortOrder = This.ViewModel.CurrentSortState.GetCaption
+    Me.cmbSave.Enabled = This.ViewModel.CurrentSortState.HasSortOrder
+    If This.ViewModel.CanSave Then
+        Me.cmbSave.Enabled = True
+        Me.cmbSave.Caption = "Save"
+    Else
+        Me.cmbSave.Enabled = False
+        Me.cmbSave.Caption = "Saved"
+    End If
+    
+    SortOrderToTreeView.InitializeTreeView Me.tvStates
+    SortOrderToListView.InitializeListView Me.lvPreview
+    This.ViewModel.LoadToTreeView Me.tvStates
+    This.ViewModel.LoadToListView Me.lvPreview, "K001"
+    Exit Sub
+    
     Me.lvSortOrders.ListItems.Clear
     
     Dim SortOrderState As SortOrderState
@@ -115,27 +126,6 @@ Private Sub InitializeListView()
         Set .SmallIcons = ImageList32
     End With
 End Sub
-
-Private Function GetImageList() As ImageList
-    Dim Result As ImageList
-    Set Result = New ImageList
-    Result.ImageWidth = IMAGEMSO_SIZE
-    Result.ImageHeight = IMAGEMSO_SIZE
-    
-    Dim ImageNameArray() As String
-    ImageNameArray = Split(IMAGEMSO_NAMES, ",")
-    
-    Dim ImageName As Variant
-    For Each ImageName In ImageNameArray
-        AddImageToImageList Result, ImageName
-    Next ImageName
-    
-    Set GetImageList = Result
-End Function
-
-Private Function AddImageToImageList(ByVal ImageList As ImageList, ByVal ImageMso As String)
-    ImageList.ListImages.Add Key:=ImageMso, Picture:=Application.CommandBars.GetImageMso(ImageMso, IMAGEMSO_SIZE, IMAGEMSO_SIZE)
-End Function
 
 Private Sub TryApplySortOrder()
     If Me.lvSortOrders.SelectedItem Is Nothing Then Exit Sub
@@ -162,8 +152,12 @@ Private Sub LoadSortOrderStateToListView(ByVal SortOrderState As SortOrderState,
 End Sub
 
 Private Sub InitalizeLabelPictures()
-    Set Me.lblOptionsPicture.Picture = Application.CommandBars.GetImageMso("AdvancedFileProperties", 24, 24)
-    Set Me.lblPreviewSortOrderPicture.Picture = Application.CommandBars.GetImageMso("SortDialog", 24, 24)
-    Set Me.lblSavedSortOrdersPicture.Picture = Application.CommandBars.GetImageMso("StarRatedFull", 24, 24)
-    Set Me.lblSelectedTablePicture.Picture = Application.CommandBars.GetImageMso("TableAutoFormat", 24, 24)
+    InitalizeLabelPicture Me.lblOptionsPicture, "AdvancedFileProperties"
+    InitalizeLabelPicture Me.lblPreviewSortOrderPicture, "SortDialog"
+    InitalizeLabelPicture Me.lblSavedSortOrdersPicture, "StarRatedFull"
+    InitalizeLabelPicture Me.lblSelectedTablePicture, "TableAutoFormat"
+End Sub
+
+Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
+    Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
 End Sub

@@ -11,6 +11,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private Const TRIM_FIELD_NAME_LENGTH As Long = 16
+Private Const NO_SORT_ORDER = "(no sort order)"
 
 Private Type TState
     WorksheetName As String
@@ -22,6 +23,10 @@ Private Type TState
     'Comments as String ' base64 and multiline
 End Type
 Private This As TState
+
+Public Property Get HasSortOrder() As Boolean
+    HasSortOrder = (This.SortFields.Count > 0)
+End Property
 
 Public Property Get WorksheetName() As String
     WorksheetName = This.WorksheetName
@@ -170,6 +175,14 @@ Public Function GetCaption()
         Result = Result & FieldName & " > "
     Next SortFieldState
     
-    Result = Left$(Result, Len(Result) - 3)
+    If Len(Result) > 0 Then
+        Result = Left$(Result, Len(Result) - 3)
+    Else
+        Result = NO_SORT_ORDER
+    End If
     GetCaption = Result
+End Function
+
+Public Function Equals(ByVal RHS As SortOrderState) As Boolean
+    Equals = (Me.ToBase64 = RHS.ToBase64)
 End Function
