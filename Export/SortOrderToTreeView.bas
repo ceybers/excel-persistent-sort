@@ -49,11 +49,10 @@ Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal Tre
     Set ListObjectNames = New Collection
     ListObjectNames.Add ViewModel.ListObject.Name
     
-    Dim HasOrphans As Boolean
-    
     Dim AllListObjects As Collection
     Set AllListObjects = GetAllListObjects(ViewModel.Workbook)
     
+    Dim HasOrphans As Boolean
     Dim ListObjectName As String
     Dim SortOrderState  As SortOrderState
     For Each SortOrderState In ViewModel.SortOrderStates
@@ -91,7 +90,7 @@ Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal Tre
 End Sub
 
 Private Sub AddUnsavedSortStateNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
-    If ViewModel.CurrentSortState.SortFields.Count > 0 Then
+    If ViewModel.CurrentSortState.HasSortOrder Then
         Dim Node As Node
         Set Node = TreeView.Nodes.Add(Relative:=TreeView.Nodes.Item(2), _
                                       Relationship:=tvwChild, _
@@ -162,6 +161,7 @@ Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal
 End Sub
 
 Private Sub UpdateListObjectIcons(ByVal TreeView As TreeView)
+    ' .Item(2) should always be the target ListObject
     With TreeView.Nodes.Item(2)
         .text = .text & SUFFIX_SELECTED_LISTOBJECT
         .Image = MSO_LISTOBJECT_SELECTED
@@ -183,17 +183,14 @@ Private Sub CheckNoSortOrderStatesFound(ByVal TreeView As TreeView)
     Node.ForeColor = GREY_TEXT_COLOR
 End Sub
 
-
 Private Sub RemoveEmptyListObjectNodes(ByVal TreeView As TreeView)
     Dim NodesToDelete As Collection
     Set NodesToDelete = New Collection
     
     Dim Node As Node
     For Each Node In TreeView.Nodes
-        If Node.Image = MSO_LISTOBJECT Then
-            If Node.Children = 0 Then
-                NodesToDelete.Add Node.Key
-            End If
+        If Node.Image = MSO_LISTOBJECT And Node.Children = 0 Then
+            NodesToDelete.Add Node.Key
         End If
     Next Node
     
@@ -208,5 +205,3 @@ Private Sub TrySelectSelectedNode(ByVal ViewModel As SortOrderViewModel, ByVal T
         ViewModel.TrySelect TreeView.SelectedItem.Key
     End If
 End Sub
-
-

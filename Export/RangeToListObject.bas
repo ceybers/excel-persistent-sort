@@ -2,16 +2,7 @@ Attribute VB_Name = "RangeToListObject"
 '@Folder "MVVM.SortOrder.Helpers"
 Option Explicit
 
-Public Function ListColumnExists(ByVal ListObject As ListObject, ByVal ListColumnName As String) As Boolean
-    Dim ListColumn As ListColumn
-    For Each ListColumn In ListObject.ListColumns
-        If ListColumn.Name = ListColumnName Then
-            ListColumnExists = True
-            Exit Function
-        End If
-    Next ListColumn
-End Function
-
+'@Description "Returns the name of a ListColumn if a Range intersects with a given ListObject."
 Public Function TryRangeToListHeader(ByVal ListObject As ListObject, ByVal Range As Range, ByRef OutHeader As String) As Boolean
     Dim Result As String
     Result = RangeToListHeader(ListObject, Range)
@@ -38,4 +29,3 @@ Private Function RangeToListHeader(ByVal ListObject As ListObject, ByVal Range A
     
     RangeToListHeader = Result
 End Function
-

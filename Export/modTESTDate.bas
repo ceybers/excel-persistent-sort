@@ -4,6 +4,7 @@ Option Explicit
 
 Private Const XML_SETTINGS_NAME As String = "PersistentSortOrder"
 
+'@EntryPoint "Debug to seed test data"
 Public Sub SetSavedSortOrders()
     Dim WorkbookSettings As XMLSettings
     Set WorkbookSettings = XMLSettingsFactory.CreateWorkbookSettings( _

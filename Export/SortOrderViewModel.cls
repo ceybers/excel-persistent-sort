@@ -18,15 +18,12 @@ Private Const DO_PARTIAL_MATCH As String = "DO_PARTIAL_MATCH"
 Private Const DO_PARTIAL_APPLY As String = "DO_PARTIAL_APPLY"
 Private Const DO_CLOSE_ON_APPLY As String = "DO_CLOSE_ON_APPLY"
 
-'Event PropertyChanged(ByVal PropertyName As String)
-
 Private Type TState
     Workbook As Workbook
     ListObject As ListObject
     CurrentSortState As SortOrderState
     SelectedSortState As SortOrderState
     SortOrderStates As Collection
-    
     Settings As ISettingsModel
 End Type
 
@@ -87,10 +84,6 @@ Public Property Get ListObject() As ListObject
     Set ListObject = This.ListObject
 End Property
 
-'Public Property Set ListObject(ByVal vNewValue As ListObject)
-'    Set This.ListObject = vNewValue
-'End Property
-
 Public Property Get SortOrderStates() As Collection
     Set SortOrderStates = This.SortOrderStates
 End Property
@@ -101,17 +94,14 @@ End Property
 
 Public Sub Load(ByVal ListObject As ListObject)
     Set This.ListObject = ListObject
-    
-    'Set This.CurrentSortState = New SortOrderState
-    'This.CurrentSortState.LoadFromListObject This.ListObject
+    Set This.Workbook = This.ListObject.Parent.Parent
     
     LoadSettings
+    
     Reload
 End Sub
 
 Private Sub LoadSettings()
-    Set This.Workbook = This.ListObject.Parent.Parent
-    
     Dim WorkbookSettings As XMLSettings
     Set WorkbookSettings = XMLSettingsFactory.CreateWorkbookSettings( _
                            Workbook:=This.Workbook, _
@@ -126,7 +116,6 @@ Private Sub LoadSettings()
     If This.Settings.Workbook.GetSetting(SETTING_LAST_UPDATED) = Empty Then
         ApplyDefaultSettings
     End If
-    'WorkbookSettings.Load
 End Sub
 
 Private Sub ApplyDefaultSettings()
@@ -134,7 +123,7 @@ Private Sub ApplyDefaultSettings()
         .SetFlag DO_ASSOCIATE_ON_APPLY, True
         .SetFlag DO_PARTIAL_MATCH, True
         .SetFlag DO_PARTIAL_APPLY, True
-        .SetFlag DO_CLOSE_ON_APPLY, False        ' DEBUG True
+        .SetFlag DO_CLOSE_ON_APPLY, True
         .SetSetting SETTING_LAST_UPDATED, CStr(Now())
     End With
 End Sub
@@ -142,15 +131,14 @@ End Sub
 Private Sub Reload()
     Dim SerializedSortOrders As Collection
     Set SerializedSortOrders = This.Settings.Workbook.GetCollection(SETTING_COLLECTION_NAME)
-    
-    ' TODO Should clear it instead
-    Set This.SortOrderStates = New Collection
+
+    CollectionHelpers.CollectionClear This.SortOrderStates
     
     Dim SerializedSortOrder As Variant
     For Each SerializedSortOrder In SerializedSortOrders
         Dim SortOrderState As SortOrderState
         Set SortOrderState = New SortOrderState
-        SortOrderState.LoadFromString SerializedSortOrder
+        SortOrderState.LoadFromString SerializedSortOrder, This.ListObject
         This.SortOrderStates.Add SortOrderState
     Next SerializedSortOrder
 End Sub
@@ -291,5 +279,3 @@ Private Sub AssociateSortOrderState(ByVal SortOrderState As SortOrderState)
     This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, NewCollection
     This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Sub
-
-

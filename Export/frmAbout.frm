@@ -20,10 +20,6 @@ Private Sub cmbClose_Click()
     Me.Hide
 End Sub
 
-Private Sub Label1_Click()
-
-End Sub
-
 Private Sub UserForm_Activate()
     Set Me.lblPicHeader.Picture = Application.CommandBars.GetImageMso("CreateTableInDesignView", 32, 32)
 End Sub

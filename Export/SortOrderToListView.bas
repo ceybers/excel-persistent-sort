@@ -2,6 +2,11 @@ Attribute VB_Name = "SortOrderToListView"
 '@Folder("MVVM.SortOrder.ViewModel")
 Option Explicit
 
+Private Const MSO_COLUMN_EXISTS As String = "AcceptInvitation"
+Private Const MSO_COLUMN_NOT_EXISTS As String = "DeclineInvitation"
+Private Const MSO_SORT_UP As String = "SortUp"
+Private Const MSO_SORT_DOWN As String = "SortDown"
+
 Public Sub InitializeListView(ByVal ListView As ListView)
     With ListView
         .ListItems.Clear
@@ -24,27 +29,24 @@ Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal ListView As ListVie
     ListView.ListItems.Clear
     If ViewModel.SelectedSortState Is Nothing Then Exit Sub
     
-    Dim i As Long
-    i = 1
-    
-    Dim SortFieldState As SortFieldState
+   Dim SortFieldState As SortFieldState
     For Each SortFieldState In ViewModel.SelectedSortState.SortFields
-        Dim ListItem As ListItem
-        Set ListItem = ListView.ListItems.Add(text:=CStr(i), SmallIcon:="AcceptInvitation")
-        
-        ListItem.ListSubItems.Add text:=SortFieldState.ColumnName
-        If SortFieldState.SortOrder = 0 Then
-            ListItem.ListSubItems.Add text:="Desc", ReportIcon:="SortDown"
-        Else
-            ListItem.ListSubItems.Add text:="Asc", ReportIcon:="SortUp"
-        End If
-        
-        If Not ListObjectHelpers.HasListColumn(ByVal ViewModel.ListObject, SortFieldState.ColumnName) Then
-            ListItem.SmallIcon = "DeclineInvitation"
-        End If
-        
-        i = i + 1
+        LoadSortFieldStateToListView ListView, SortFieldState
     Next SortFieldState
-    
 End Sub
 
+Private Sub LoadSortFieldStateToListView(ByVal ListView As ListView, ByVal SortFieldState As SortFieldState)
+    Dim ListItem As ListItem
+    Set ListItem = ListView.ListItems.Add(text:=CStr(SortFieldState.Index), SmallIcon:=MSO_COLUMN_EXISTS)
+    
+    ListItem.ListSubItems.Add text:=SortFieldState.ColumnName
+    If SortFieldState.SortOrder = 0 Then
+        ListItem.ListSubItems.Add text:="Desc", ReportIcon:=MSO_SORT_DOWN
+    Else
+        ListItem.ListSubItems.Add text:="Asc", ReportIcon:=MSO_SORT_UP
+    End If
+    
+    If Not SortFieldState.Exists Then
+        ListItem.SmallIcon = MSO_COLUMN_NOT_EXISTS
+    End If
+End Sub

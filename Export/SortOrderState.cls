@@ -17,10 +17,6 @@ Private Type TState
     WorksheetName As String
     ListObjectName As String
     SortFields As Collection
-    'CreatedTime As Date
-    'ModifiedTime as Date
-    'LastUsedTime as Date
-    'Comments as String ' base64 and multiline
 End Type
 
 Private This As TState
@@ -58,13 +54,15 @@ Public Sub LoadFromListObject(ByVal ListObject As ListObject)
     This.WorksheetName = ListObject.Parent.Name
     This.ListObjectName = ListObject.Name
     
-    Dim SortField As SortField
-    For Each SortField In ListObject.Sort.SortFields
-        AddSortField ListObject, SortField
-    Next SortField
+    Dim i As Long
+    For i = 1 To ListObject.Sort.SortFields.Count
+        Dim SortField As SortField
+        Set SortField = ListObject.Sort.SortFields.Item(i)
+        AddSortField ListObject, SortField, i
+    Next i
 End Sub
 
-Public Sub LoadFromString(ByVal SerializedString As String)
+Public Sub LoadFromString(ByVal SerializedString As String, ByVal ListObject As ListObject)
     Dim SplitText() As String
     SplitText = Split(SerializedString, ":")
     
@@ -76,7 +74,7 @@ Public Sub LoadFromString(ByVal SerializedString As String)
     
     Dim i As Long
     For i = LBound(SplitFields) To UBound(SplitFields)
-        AddSortFieldSerialized SplitFields(i)
+        AddSortFieldSerialized SplitFields(i), i, ListObject
     Next i
 End Sub
 
@@ -133,7 +131,7 @@ Private Sub ApplySortFieldState(ByVal ListObject As ListObject, ByVal SortFieldS
     ListObject.Sort.SortFields.Add Key:=KeyRange, Order:=SortFieldState.SortOrder
 End Sub
 
-Private Sub AddSortField(ByVal ListObject As ListObject, ByVal SortField As SortField)
+Private Sub AddSortField(ByVal ListObject As ListObject, ByVal SortField As SortField, ByVal Index As Long)
     If SortField.SortOn <> xlSortOnValues Then Exit Sub
     Dim SortFieldState As SortFieldState
     Set SortFieldState = New SortFieldState
@@ -144,12 +142,13 @@ Private Sub AddSortField(ByVal ListObject As ListObject, ByVal SortField As Sort
     With SortFieldState
         .ColumnName = HeaderName
         .SortOrder = SortField.Order
+        .Index = Index
     End With
     
     This.SortFields.Add Item:=SortFieldState
 End Sub
 
-Private Sub AddSortFieldSerialized(ByVal SerializedSortField As String)
+Private Sub AddSortFieldSerialized(ByVal SerializedSortField As String, ByVal Index As Long, ByVal ListObject As ListObject)
     Dim SplitText() As String
     SplitText = Split(SerializedSortField, ",")
     
@@ -159,6 +158,8 @@ Private Sub AddSortFieldSerialized(ByVal SerializedSortField As String)
     With SortFieldState
         .ColumnName = Base64toString(SplitText(0))
         .SortOrder = CLng(SplitText(1))
+        .Index = (Index + 1)
+        .Exists = ListObjectHelpers.HasListColumn(ListObject, .ColumnName)
     End With
     
     This.SortFields.Add Item:=SortFieldState
@@ -203,4 +204,3 @@ End Function
 Public Function Equals(ByVal RHS As SortOrderState) As Boolean
     Equals = (Me.ToBase64 = RHS.ToBase64)
 End Function
-

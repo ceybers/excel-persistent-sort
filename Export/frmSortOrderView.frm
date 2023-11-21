@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSortOrderView 
-   Caption         =   "Sort Order Manager"
+   Caption         =   "Persistent Sort Order Tool"
    ClientHeight    =   7815
    ClientLeft      =   120
    ClientTop       =   465
@@ -34,16 +34,12 @@ End Sub
 
 Private Sub cboPartialApply_Click()
     This.ViewModel.DoPartialApply = Me.cboPartialApply.Value
-    UpdateSelectedTable
-    UpdateTreeView
-    UpdateListView
+    UpdateControls
 End Sub
 
 Private Sub cboPartialMatch_Click()
     This.ViewModel.DoPartialMatch = Me.cboPartialMatch.Value
-    UpdateSelectedTable
-    UpdateTreeView
-    UpdateListView
+    UpdateControls
 End Sub
 
 Private Sub cboReassociate_Click()
@@ -52,12 +48,11 @@ End Sub
 
 Private Sub cmbApply_Click()
     This.ViewModel.Apply
+    
     If This.ViewModel.DoCloseOnApply Then
         Me.Hide
     Else
-        UpdateSelectedTable
-        UpdateTreeView
-        UpdateListView
+        UpdateControls
     End If
 End Sub
 
@@ -66,32 +61,33 @@ Private Sub cmbClose_Click()
 End Sub
 
 Private Sub cmbRemove_Click()
-    If vbNo = MsgBox(MSG_REMOVE_STATE, vbExclamation + vbYesNo + vbDefaultButton2, MSG_TITLE) Then
+    If vbNo = MsgBox(MSG_REMOVE_STATE, _
+                     vbExclamation + vbYesNo + vbDefaultButton2, _
+                     MSG_TITLE) Then
         Exit Sub
     End If
     
     This.ViewModel.RemoveSelected
-    UpdateTreeView
-    UpdateListView
-    UpdateSelectedTable
+    
+    UpdateControls
 End Sub
 
 Private Sub cmbRemoveAll_Click()
-    If vbNo = MsgBox(MSG_REMOVE_ALL_STATES, vbExclamation + vbYesNo + vbDefaultButton2, MSG_TITLE) Then
+    If vbNo = MsgBox(MSG_REMOVE_ALL_STATES, _
+                     vbExclamation + vbYesNo + vbDefaultButton2, _
+                     MSG_TITLE) Then
         Exit Sub
     End If
     
     This.ViewModel.RemoveAll
-    UpdateTreeView
-    UpdateListView
-    UpdateSelectedTable
+    
+    UpdateControls
 End Sub
 
 Private Sub cmbSave_Click()
     This.ViewModel.Save
-    UpdateSelectedTable
-    UpdateTreeView
-    UpdateListView
+    
+    UpdateControls
 End Sub
 
 Private Sub lblOptionsPicture_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
@@ -99,19 +95,20 @@ Private Sub lblOptionsPicture_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
 End Sub
 
 'Private Sub tvStates_DblClick()
-    'If This.ViewModel.Apply Then
-    '    If This.ViewModel.DoCloseOnApply Then
-    '        Me.Hide
-    '    Else
-    '        UpdateSelectedTable
-    '        UpdateTreeView
-    '        UpdateListView
-    '    End If
-    'End If
+'If This.ViewModel.Apply Then
+'    If This.ViewModel.DoCloseOnApply Then
+'        Me.Hide
+'    Else
+'        UpdateSelectedTable
+'        UpdateTreeView
+'        UpdateListView
+'    End If
+'End If
 'End Sub
 
 Private Sub tvStates_NodeClick(ByVal Node As MSComctlLib.Node)
     This.ViewModel.TrySelect Node.Key
+    
     UpdateListView
 End Sub
 
@@ -140,17 +137,18 @@ Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
 End Function
 
 Private Sub InitalizeFromViewModel()
-    UpdateSelectedTable
-    
     SortOrderToTreeView.InitializeTreeView Me.tvStates
-    UpdateTreeView
-    
     SortOrderToListView.InitializeListView Me.lvPreview
+    
+    UpdateControls
+    
+    InitializeOptions
+End Sub
+
+Private Sub UpdateControls()
+    UpdateSelectedTable
+    UpdateTreeView
     UpdateListView
-    
-    Me.cmbApply.Enabled = False
-    
-    UpdateOptions
 End Sub
 
 Private Sub UpdateSelectedTable()
@@ -160,13 +158,6 @@ Private Sub UpdateSelectedTable()
     
     Me.cmbSave.Enabled = This.ViewModel.CanSave
     Me.cmbSave.Caption = IIf(This.ViewModel.CanSave, "Save", "Saved")
-End Sub
-
-Private Sub UpdateOptions()
-    Me.cboCloseOnApply.Value = This.ViewModel.DoCloseOnApply
-    Me.cboPartialApply.Value = This.ViewModel.DoPartialApply
-    Me.cboPartialMatch.Value = This.ViewModel.DoPartialMatch
-    Me.cboReassociate.Value = This.ViewModel.DoAssociateOnApply
 End Sub
 
 Private Sub UpdateTreeView()
@@ -211,6 +202,13 @@ Private Sub UpdateListView()
     End If
 End Sub
 
+Private Sub InitializeOptions()
+    Me.cboCloseOnApply.Value = This.ViewModel.DoCloseOnApply
+    Me.cboPartialApply.Value = This.ViewModel.DoPartialApply
+    Me.cboPartialMatch.Value = This.ViewModel.DoPartialMatch
+    Me.cboReassociate.Value = This.ViewModel.DoAssociateOnApply
+End Sub
+
 Private Sub InitalizeLabelPictures()
     InitalizeLabelPicture Me.lblOptionsPicture, "AdvancedFileProperties"
     InitalizeLabelPicture Me.lblPreviewSortOrderPicture, "SortDialog"
@@ -221,4 +219,5 @@ End Sub
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
     Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
 End Sub
+
 

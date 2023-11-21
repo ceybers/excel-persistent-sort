@@ -13,6 +13,8 @@ Option Explicit
 Private Type TState
     ColumnName As String
     SortOrder As Long
+    Index As Long
+    Exists As Boolean
 End Type
 
 Private This As TState
@@ -33,3 +35,18 @@ Public Property Let SortOrder(ByVal vNewValue As Long)
     This.SortOrder = vNewValue
 End Property
 
+Public Property Get Index() As Long
+    Index = This.Index
+End Property
+
+Public Property Let Index(ByVal vNewValue As Long)
+    This.Index = vNewValue
+End Property
+
+Public Property Get Exists() As Boolean
+    Exists = This.Exists
+End Property
+
+Public Property Let Exists(ByVal vNewValue As Boolean)
+    This.Exists = vNewValue
+End Property
