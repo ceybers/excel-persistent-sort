@@ -1,15 +1,7 @@
 Attribute VB_Name = "modMain"
 '@Folder "SortOrderState"
 Option Explicit
-Public Sub aaa()
-    Dim sort As sort
-    Set sort = Selection.ListObject.sort
-    
-    Dim sortfield As sortfield
-    Set sortfield = sort.sortfields.Item(1)
-    
-    Stop
-End Sub
+
 '@EntryPoint "Open UI for PersistentSortOrderTool"
 Public Sub PersistentSortOrderTool()
     If Selection.ListObject Is Nothing Then

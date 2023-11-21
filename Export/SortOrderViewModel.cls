@@ -226,7 +226,7 @@ Public Sub Save()
     SaveSortOrderStates
 End Sub
 
-Private Function IsSortOrderStateOrphaned(ByVal SortOrderState As SortOrderState)
+Private Function IsSortOrderStateOrphaned(ByVal SortOrderState As SortOrderState) As Boolean
     Dim AllListObjects As Collection
     Set AllListObjects = ListObjectHelpers.GetAllListObjects(This.Workbook)
     
@@ -283,7 +283,7 @@ End Sub
 Public Function CanPrune() As Boolean
     Dim i As Long
     For i = This.SortOrderStates.Count To 1 Step -1
-        If Not ListObjectHelpers.ListObjectExists(This.Workbook, This.SortOrderStates(i).ListObjectName) Then
+        If Not ListObjectHelpers.ListObjectExists(This.Workbook, This.SortOrderStates.Item(i).ListObjectName) Then
             CanPrune = True
             Exit Function
         End If
@@ -296,7 +296,7 @@ Public Sub Prune()
     
     Dim i As Long
     For i = This.SortOrderStates.Count To 1 Step -1
-        If Not ListObjectHelpers.ListObjectExists(This.Workbook, This.SortOrderStates(i).ListObjectName) Then
+        If Not ListObjectHelpers.ListObjectExists(This.Workbook, This.SortOrderStates.Item(i).ListObjectName) Then
             ItemsToDelete.Add i
         End If
     Next i
@@ -321,3 +321,5 @@ Private Sub SaveSortOrderStates()
     This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, NewCollection
     This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Sub
+
+

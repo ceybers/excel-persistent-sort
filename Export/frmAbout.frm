@@ -21,6 +21,8 @@ Private Sub cmbClose_Click()
 End Sub
 
 Private Sub UserForm_Activate()
-    Set Me.lblPicHeader.Picture = Application.CommandBars.GetImageMso("CreateTableInDesignView", 32, 32)
+    Dim Picture As IPictureDisp
+    Set Picture = Application.CommandBars.GetImageMso("CreateTableInDesignView", 32, 32)
+    Set Me.lblPicHeader.Picture = Picture
 End Sub
 

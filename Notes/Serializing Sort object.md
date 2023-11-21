@@ -19,7 +19,7 @@
     xlSortNormal).SortOnValue.Color = RGB(156, 0, 6)
 ```
 
-# Sort by Font Color (background)
+# Sort by Cell Color (background)
 - Test: `SortField.SortOn = xlSortOnCellColor`
 - Order as above
 - Order value: `SortField.SortOnValue` property is `Object/Font`. 

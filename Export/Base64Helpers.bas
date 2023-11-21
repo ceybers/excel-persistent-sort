@@ -23,6 +23,8 @@ Public Function StringtoBase64(ByVal StringValue As String) As String
 End Function
 
 Public Function Base64toString(ByVal Base64Value As String) As String
+    If Base64Value = Empty Then Exit Function
+    
     Dim XMLObject As Object
     Set XMLObject = CreateObject("MSXML2.DOMDocument")
     

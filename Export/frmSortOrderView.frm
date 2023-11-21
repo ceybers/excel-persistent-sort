@@ -4,7 +4,7 @@ Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSortOrderView
    ClientHeight    =   7815
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   8160
+   ClientWidth     =   9360.001
    OleObjectBlob   =   "frmSortOrderView.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -241,3 +241,5 @@ End Sub
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
     Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
 End Sub
+
+
