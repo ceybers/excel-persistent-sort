@@ -41,6 +41,9 @@ Public Sub SetSavedSortOrders()
     SortOrderStates.Add Item:="Sheet2:Table2:R2FtbWE=,2"
     SortOrderStates.Add Item:="Sheet1:Table1:Q29sQg==,1;Q29sQw==,2"
     SortOrderStates.Add Item:="Sheet2:Table2:VmVyeUxvbmdDb2x1bW5OYW1l,1;TG9uZ0NvbHVtbk5hbWU=,2"
+    SortOrderStates.Add Item:="Sheet2:OrphanTable:R2FtbWE=,2"
+    SortOrderStates.Add Item:="Sheet1:Table1:Q29sQw==,2;Q29sQg==,1"
+    SortOrderStates.Add Item:="Sheet1:Table1:Q29sQw==,2;Q29sQg==,1;TG9uZ0NvbHVtbk5hbWU=,2"
     
     ASettingsModel.Workbook.SetCollection "SortOrderStates", SortOrderStates
     

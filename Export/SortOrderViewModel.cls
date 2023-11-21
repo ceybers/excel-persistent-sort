@@ -15,15 +15,26 @@ Private Const SETTING_COLLECTION_NAME As String = "SortOrderStates"
 Event PropertyChanged(ByVal PropertyName As String)
 
 Private Type TState
+    Workbook As Workbook
     ListObject As ListObject
     CurrentSortState As SortOrderState
+    SelectedSortState As SortOrderState
     SortOrderStates As Collection
+    
     Settings As ISettingsModel
 End Type
 Private This As TState
 
 Public Property Get CurrentSortState() As SortOrderState
     Set CurrentSortState = This.CurrentSortState
+End Property
+
+Public Property Get SelectedSortState() As SortOrderState
+    Set SelectedSortState = This.SelectedSortState
+End Property
+
+Public Property Get Workbook() As Workbook
+    Set Workbook = This.Workbook
 End Property
 
 Public Property Get ListObject() As ListObject
@@ -57,12 +68,11 @@ Public Sub Load(ByVal ListObject As ListObject)
 End Sub
 
 Private Sub LoadSettings()
-    Dim Workbook As Workbook
-    Set Workbook = This.ListObject.Parent.Parent
+    Set This.Workbook = This.ListObject.Parent.Parent
     
     Dim WorkbookSettings As XMLSettings
     Set WorkbookSettings = XMLSettingsFactory.CreateWorkbookSettings( _
-      Workbook:=Workbook, _
+      Workbook:=This.Workbook, _
       RootNode:=XML_SETTINGS_NAME)
     
     Dim ASettingsModel As ISettingsModel
@@ -94,7 +104,14 @@ Private Sub Class_Initialize()
     Set This.SortOrderStates = New Collection
 End Sub
 
-Public Sub ApplySortOrderState(ByVal Index As Long)
+Public Function Apply() As Boolean
+    If This.SelectedSortState Is Nothing Then Exit Function
+    If Not This.SelectedSortState.CanApply(This.ListObject) Then Exit Function
+    This.SelectedSortState.Apply This.ListObject
+    Apply = True
+End Function
+
+Public Sub ZZZ_ApplySortOrderState(ByVal Index As Long)
     Dim SortOrderState As SortOrderState
     Set SortOrderState = This.SortOrderStates.Item(Index)
     SortOrderState.Apply This.ListObject
@@ -113,43 +130,30 @@ End Sub
 
 Public Function LoadToTreeView(ByVal TreeView As TreeView)
     TreeView.Nodes.Clear
-    Dim Workbook As Workbook
-    Set Workbook = This.ListObject.Parent.Parent
+    
     Dim Node As Node
-    Set Node = TreeView.Nodes.Add(text:=Workbook.Name, Image:="FileSaveAsExcelXlsx")
+    Set Node = TreeView.Nodes.Add(text:=This.Workbook.Name, Image:="FileSaveAsExcelXlsx")
     Node.Expanded = True
     
     Dim Node2 As Node
-    Set Node2 = TreeView.Nodes.Add(Relative:=Node, Relationship:=tvwChild, text:="Table1", Image:="CreateTable")
+    Set Node2 = TreeView.Nodes.Add(Relative:=Node, relationship:=tvwChild, text:="Table1", Image:="CreateTable")
     Node2.Expanded = True
     
     Dim Node3 As Node
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, Relationship:=tvwChild, text:="Col A > Col B", Image:="SortDialog")
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, Relationship:=tvwChild, text:="Col B > Col A", Image:="SortDialog")
+    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="Col A > Col B", Image:="SortDialog")
+    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="Col B > Col A", Image:="SortDialog")
     
-    Set Node2 = TreeView.Nodes.Add(Relative:=Node, Relationship:=tvwChild, text:="Table2", Image:="CreateTable")
+    Set Node2 = TreeView.Nodes.Add(Relative:=Node, relationship:=tvwChild, text:="Table2", Image:="CreateTable")
     Node2.Expanded = True
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, Relationship:=tvwChild, text:="foo > bar", Image:="SortDialog")
+    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="foo > bar", Image:="SortDialog")
     
-    Set Node2 = TreeView.Nodes.Add(Relative:=Node, Relationship:=tvwChild, text:="(Orphaned)", Image:="CreateTable")
+    Set Node2 = TreeView.Nodes.Add(Relative:=Node, relationship:=tvwChild, text:="(Orphaned)", Image:="CreateTable")
     Node2.Expanded = True
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, Relationship:=tvwChild, text:="apple > banana", Image:="SortDialog")
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, Relationship:=tvwChild, text:="zebra > xray", Image:="SortDialog")
+    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="apple > banana", Image:="SortDialog")
+    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="zebra > xray", Image:="SortDialog")
     
     'Node2.Expanded = True
     
-End Function
-
-Public Function LoadToListView(ByVal ListView As ListView, ByVal Key As String)
-    ListView.ListItems.Clear
-    Dim ListItem As ListItem
-    Set ListItem = ListView.ListItems.Add(text:=CStr("1"), SmallIcon:="AcceptInvitation")
-    ListItem.ListSubItems.Add text:="Col A"
-    ListItem.ListSubItems.Add text:="Asc", ReportIcon:="SortUp"
-    
-    Set ListItem = ListView.ListItems.Add(text:=CStr("2"), SmallIcon:="AcceptInvitation")
-    ListItem.ListSubItems.Add text:="Col B"
-    ListItem.ListSubItems.Add text:="Desc", ReportIcon:="SortDown"
 End Function
 
 Public Function CanSave() As Boolean
@@ -160,4 +164,17 @@ Public Function CanSave() As Boolean
         End If
     Next RHSSortOrderState
     CanSave = True
+End Function
+
+Public Function TrySelect(ByVal Key As String) As Boolean
+    Dim SortOrderState As SortOrderState
+    For Each SortOrderState In This.SortOrderStates
+        If SortOrderState.ToBase64 = Key Then
+            Set This.SelectedSortState = SortOrderState
+            TrySelect = True
+            Exit Function
+        End If
+    Next SortOrderState
+    
+    Set This.SelectedSortState = Nothing
 End Function

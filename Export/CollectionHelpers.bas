@@ -1,5 +1,5 @@
 Attribute VB_Name = "CollectionHelpers"
-'@Folder "Helpers"
+'@Folder "MVVM.SortOrder.Helpers"
 Option Explicit
 
 Public Function ConcatCollection(ByVal Collection As Collection, ByVal Delimiter As String) As String
@@ -15,4 +15,18 @@ Public Function ConcatCollection(ByVal Collection As Collection, ByVal Delimiter
     End If
     
     ConcatCollection = Result
+End Function
+
+Public Function ExistsInCollection(ByVal Collection As Object, ByVal Value As Variant) As Boolean
+    Debug.Assert Not Collection Is Nothing
+    
+    Dim ThisValue As Variant
+    For Each ThisValue In Collection
+        'If ThisValue = Value Then
+        If CStr(ThisValue) = CStr(Value) Then
+        'If StrComp(ThisValue, Value) Then ' Run-time error '458' Variable uses an Automation Type supported in Visual Basic
+            ExistsInCollection = True
+            Exit Function
+        End If
+    Next ThisValue
 End Function

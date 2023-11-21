@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSortOrderView 
    Caption         =   "Sort Order Manager"
-   ClientHeight    =   6450
+   ClientHeight    =   7815
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   7500
+   ClientWidth     =   8160
    OleObjectBlob   =   "frmSortOrderView.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -22,6 +22,11 @@ Private Type TState
     ViewModel As SortOrderViewModel
 End Type
 Private This As TState
+
+Private Sub cmbApply_Click()
+    This.ViewModel.Apply
+    Me.Hide
+End Sub
 
 Private Sub cmbClose_Click()
     OnCancel
@@ -50,12 +55,16 @@ Private Sub cmbRemoveAll_Click()
     InitalizeFromViewModel
 End Sub
 
-Private Sub frmSelectedTable_Click()
-
+Private Sub tvStates_DblClick()
+    If This.ViewModel.Apply Then
+        Me.Hide
+    End If
 End Sub
 
-Private Sub lvSortOrders_DblClick()
-    TryApplySortOrder
+Private Sub tvStates_NodeClick(ByVal Node As MSComctlLib.Node)
+    If This.ViewModel.TrySelect(Node.Key) Then
+        UpdateListView
+    End If
 End Sub
 
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
@@ -74,7 +83,6 @@ Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
     Set This.ViewModel = ViewModel
     
     InitalizeLabelPictures
-    InitializeListView
     InitalizeFromViewModel
     This.IsCancelled = False
     
@@ -84,70 +92,41 @@ Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
 End Function
 
 Private Sub InitalizeFromViewModel()
-    ' Update frmSelectedTable
+    UpdateSelectedTable
+    
+    SortOrderToTreeView.InitializeTreeView Me.tvStates
+    UpdateTreeView
+    
+    SortOrderToListView.InitializeListView Me.lvPreview
+    UpdateListView
+End Sub
+
+Private Sub UpdateSelectedTable()
+
     Me.txtTableName = This.ViewModel.CurrentSortState.ListObjectName
     Me.txtSortOrder = This.ViewModel.CurrentSortState.GetCaption
     Me.cmbSave.Enabled = This.ViewModel.CurrentSortState.HasSortOrder
-    If This.ViewModel.CanSave Then
-        Me.cmbSave.Enabled = True
-        Me.cmbSave.Caption = "Save"
-    Else
-        Me.cmbSave.Enabled = False
-        Me.cmbSave.Caption = "Saved"
-    End If
     
-    SortOrderToTreeView.InitializeTreeView Me.tvStates
-    SortOrderToListView.InitializeListView Me.lvPreview
-    This.ViewModel.LoadToTreeView Me.tvStates
-    This.ViewModel.LoadToListView Me.lvPreview, "K001"
-    Exit Sub
-    
-    Me.lvSortOrders.ListItems.Clear
-    
-    Dim SortOrderState As SortOrderState
-    For Each SortOrderState In This.ViewModel.SortOrderStates
-        LoadSortOrderStateToListView SortOrderState, Me.lvSortOrders
-    Next SortOrderState
+    Me.cmbSave.Enabled = This.ViewModel.CanSave
+    Me.cmbSave.Caption = IIf(This.ViewModel.CanSave, "Save", "Saved")
 End Sub
 
-Private Sub InitializeListView()
-    Dim ImageList32 As ImageList
-    Set ImageList32 = GetImageList
-
-    With Me.lvSortOrders
-        .View = lvwReport
-        .ColumnHeaders.Clear
-        .ColumnHeaders.Add text:="Sheet Name", Width:=80
-        .ColumnHeaders.Add text:="Table Name", Width:=80
-        .ColumnHeaders.Add text:="Column Sort Order", Width:=240
-        .Gridlines = True
-        .HotTracking = False
-        .FullRowSelect = True
-        Set .SmallIcons = ImageList32
-    End With
+Private Sub UpdateTreeView()
+    SortOrderToTreeView.Load This.ViewModel, Me.tvStates
 End Sub
 
-Private Sub TryApplySortOrder()
-    If Me.lvSortOrders.SelectedItem Is Nothing Then Exit Sub
-    This.ViewModel.ApplySortOrderState Me.lvSortOrders.SelectedItem.Index
-    Me.Hide
-End Sub
-
-Private Sub LoadSortOrderStateToListView(ByVal SortOrderState As SortOrderState, ByVal ListView As ListView)
-    Dim ListItem As ListItem
-    With ListView
-        Set ListItem = .ListItems.Add(text:=SortOrderState.WorksheetName)
-        ListItem.SmallIcon = "HeaderFooterSheetNameInsert"
-        ListItem.ListSubItems.Add text:=SortOrderState.ListObjectName, ReportIcon:="TableStyleRowHeaders"
-        ListItem.ListSubItems.Add text:=SortOrderState.GetCaption, ReportIcon:="SortDialog"
-    End With
+Private Sub UpdateListView()
+    SortOrderToListView.Load This.ViewModel, Me.lvPreview
+    If This.ViewModel.SelectedSortState Is Nothing Then Exit Sub
     
-    If Not SortOrderState.CanApply(This.ViewModel.ListObject) Then
-        ListItem.ListSubItems.Item(2).ReportIcon = "CancelRequest"
-    End If
+    Me.cmbApply.Enabled = This.ViewModel.SelectedSortState.CanApply(This.ViewModel.ListObject)
+    Me.cmbApply.Caption = "Apply"
     
-    If SortOrderState.ListObjectName = This.ViewModel.ListObject.Name Then
-        ListItem.ListSubItems.Item(1).ReportIcon = "TableStyleColumnHeaders"
+    If Not This.ViewModel.CurrentSortState Is Nothing Then
+        If This.ViewModel.SelectedSortState.Equals(This.ViewModel.CurrentSortState) Then
+            Me.cmbApply.Enabled = False
+            Me.cmbApply.Caption = "Applied"
+        End If
     End If
 End Sub
 
