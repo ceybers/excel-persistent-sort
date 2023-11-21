@@ -13,7 +13,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'@Folder "MVVM.SortOrder.View"
+
+'@Folder "MVVM.SortOrder.Views"
 Option Explicit
 Implements IView
 
@@ -23,9 +24,19 @@ Private Type TState
 End Type
 Private This As TState
 
+Private Sub cboCloseOnApply_Change()
+    This.ViewModel.DoCloseOnApply = Me.cboCloseOnApply.Value
+End Sub
+
 Private Sub cmbApply_Click()
     This.ViewModel.Apply
-    Me.Hide
+    If This.ViewModel.DoCloseOnApply Then
+        Me.Hide
+    Else
+        UpdateSelectedTable
+        UpdateTreeView
+        UpdateListView
+    End If
 End Sub
 
 Private Sub cmbClose_Click()
@@ -37,13 +48,10 @@ Private Sub cmbRemove_Click()
         Exit Sub
     End If
     
-    Debug.Assert Not Me.lvSortOrders.SelectedItem Is Nothing
-    Dim Index As Long
-    Index = Me.lvSortOrders.SelectedItem.Index
-    This.ViewModel.RemoveByIndex Index
-    InitalizeFromViewModel
-    Set Me.lvSortOrders.SelectedItem = Me.lvSortOrders.ListItems.Item(Index - 1)
-    Me.lvSortOrders.SetFocus
+    This.ViewModel.RemoveSelected
+    UpdateTreeView
+    UpdateListView
+    UpdateSelectedTable
 End Sub
 
 Private Sub cmbRemoveAll_Click()
@@ -52,18 +60,40 @@ Private Sub cmbRemoveAll_Click()
     End If
     
     This.ViewModel.RemoveAll
-    InitalizeFromViewModel
+    UpdateTreeView
+    UpdateListView
+    UpdateSelectedTable
+End Sub
+
+Private Sub cmbSave_Click()
+    This.ViewModel.Save
+    UpdateSelectedTable
+    UpdateTreeView
+    UpdateListView
+End Sub
+
+Private Sub lblOptionsPicture_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+    frmAbout.Show
 End Sub
 
 Private Sub tvStates_DblClick()
     If This.ViewModel.Apply Then
-        Me.Hide
+        If This.ViewModel.DoCloseOnApply Then
+            Me.Hide
+        Else
+            UpdateSelectedTable
+            UpdateTreeView
+            UpdateListView
+        End If
     End If
 End Sub
 
 Private Sub tvStates_NodeClick(ByVal Node As MSComctlLib.Node)
     If This.ViewModel.TrySelect(Node.Key) Then
         UpdateListView
+        Me.cmbRemove.Enabled = True
+    Else
+        Me.cmbRemove.Enabled = False
     End If
 End Sub
 
@@ -94,15 +124,21 @@ End Function
 Private Sub InitalizeFromViewModel()
     UpdateSelectedTable
     
+    UpdateOptions
+    
     SortOrderToTreeView.InitializeTreeView Me.tvStates
     UpdateTreeView
     
     SortOrderToListView.InitializeListView Me.lvPreview
     UpdateListView
+    Me.cmbApply.Enabled = False
+End Sub
+
+Private Sub UpdateOptions()
+    Me.cboCloseOnApply = This.ViewModel.DoCloseOnApply
 End Sub
 
 Private Sub UpdateSelectedTable()
-
     Me.txtTableName = This.ViewModel.CurrentSortState.ListObjectName
     Me.txtSortOrder = This.ViewModel.CurrentSortState.GetCaption
     Me.cmbSave.Enabled = This.ViewModel.CurrentSortState.HasSortOrder
@@ -113,10 +149,17 @@ End Sub
 
 Private Sub UpdateTreeView()
     SortOrderToTreeView.Load This.ViewModel, Me.tvStates
+    
+    Me.cmbPrune.Enabled = (This.ViewModel.SortOrderStates.Count > 0)
+    Me.cmbRemove.Enabled = False
+    'Me.cmbRemove.Enabled = (This.ViewModel.SortOrderStates.Count > 0)
+    Me.cmbRemoveAll.Enabled = (This.ViewModel.SortOrderStates.Count > 0)
 End Sub
 
 Private Sub UpdateListView()
     SortOrderToListView.Load This.ViewModel, Me.lvPreview
+    Me.cmbApply.Caption = "Apply"
+    Me.cmbApply.Enabled = False
     If This.ViewModel.SelectedSortState Is Nothing Then Exit Sub
     
     Me.cmbApply.Enabled = This.ViewModel.SelectedSortState.CanApply(This.ViewModel.ListObject)
@@ -128,6 +171,8 @@ Private Sub UpdateListView()
             Me.cmbApply.Caption = "Applied"
         End If
     End If
+    
+    Me.cmbRemove.Enabled = True
 End Sub
 
 Private Sub InitalizeLabelPictures()

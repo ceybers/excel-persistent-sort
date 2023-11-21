@@ -12,6 +12,8 @@ Option Explicit
 
 Private Const XML_SETTINGS_NAME As String = "PersistentSortOrder"
 Private Const SETTING_COLLECTION_NAME As String = "SortOrderStates"
+Private Const DO_CLOSE_ON_APPLY As String = "DO_CLOSE_ON_APPLY"
+
 Event PropertyChanged(ByVal PropertyName As String)
 
 Private Type TState
@@ -25,8 +27,19 @@ Private Type TState
 End Type
 Private This As TState
 
+Public Property Get DoCloseOnApply() As Boolean
+    DoCloseOnApply = This.Settings.Workbook.GetFlag(DO_CLOSE_ON_APPLY)
+End Property
+
+Public Property Let DoCloseOnApply(ByVal vNewValue As Boolean)
+    This.Settings.Workbook.SetFlag DO_CLOSE_ON_APPLY, vNewValue
+End Property
+
 Public Property Get CurrentSortState() As SortOrderState
-    Set CurrentSortState = This.CurrentSortState
+    Dim Result As SortOrderState
+    Set Result = New SortOrderState
+    Result.LoadFromListObject This.ListObject
+    Set CurrentSortState = Result
 End Property
 
 Public Property Get SelectedSortState() As SortOrderState
@@ -60,8 +73,8 @@ End Property
 Public Sub Load(ByVal ListObject As ListObject)
     Set This.ListObject = ListObject
     
-    Set This.CurrentSortState = New SortOrderState
-    This.CurrentSortState.LoadFromListObject This.ListObject
+    'Set This.CurrentSortState = New SortOrderState
+    'This.CurrentSortState.LoadFromListObject This.ListObject
     
     LoadSettings
     Reload
@@ -123,12 +136,42 @@ Public Sub RemoveByIndex(ByVal Index As Long)
     Reload
 End Sub
 
-Public Sub RemoveAll()
-    RemoveAllSavedSortOrders
-    Reload
+Public Sub RemoveSelected()
+    If This.SelectedSortState Is Nothing Then Exit Sub
+    
+    Dim i As Long
+    For i = This.SortOrderStates.Count To 1 Step -1
+        Dim SortOrderState As SortOrderState
+        Set SortOrderState = This.SortOrderStates.Item(i)
+        If SortOrderState Is This.SelectedSortState Then
+            This.SortOrderStates.Remove i
+        End If
+    Next i
+    
+    Dim SavedCollection As Collection
+    Set SavedCollection = This.Settings.Workbook.GetCollection(SETTING_COLLECTION_NAME)
+    For i = SavedCollection.Count To 1 Step -1
+        If SavedCollection.Item(i) = This.SelectedSortState.ToBase64 Then
+            SavedCollection.Remove i
+        End If
+    Next i
+    
+    This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, SavedCollection
+
+    Set This.SelectedSortState = Nothing
 End Sub
 
-Public Function LoadToTreeView(ByVal TreeView As TreeView)
+Public Sub RemoveAll()
+    Set This.SelectedSortState = Nothing
+    
+    CollectionHelpers.CollectionClear This.SortOrderStates
+    
+    Dim EmptyCollection As Collection
+    Set EmptyCollection = New Collection
+    This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, EmptyCollection
+End Sub
+
+Public Function ZZZ_LoadToTreeView(ByVal TreeView As TreeView)
     TreeView.Nodes.Clear
     
     Dim Node As Node
@@ -159,7 +202,7 @@ End Function
 Public Function CanSave() As Boolean
     Dim RHSSortOrderState As SortOrderState
     For Each RHSSortOrderState In This.SortOrderStates
-        If This.CurrentSortState.Equals(RHSSortOrderState) Then
+        If CurrentSortState.Equals(RHSSortOrderState) Then
             Exit Function
         End If
     Next RHSSortOrderState
@@ -178,3 +221,16 @@ Public Function TrySelect(ByVal Key As String) As Boolean
     
     Set This.SelectedSortState = Nothing
 End Function
+
+Public Sub Save()
+    Debug.Assert Not This.CurrentSortState Is Nothing
+    
+    Dim SavedCollection As Collection
+    Set SavedCollection = This.Settings.Workbook.GetCollection(SETTING_COLLECTION_NAME)
+    
+    SavedCollection.Add Item:=This.CurrentSortState.ToBase64
+    
+    This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, SavedCollection
+    
+    Reload
+End Sub

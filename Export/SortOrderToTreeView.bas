@@ -5,6 +5,7 @@ Option Explicit
 Private Const ORPHAN_LISTOBJECT_NAME As String = "(Orphaned)"
 Private Const GREY_TEXT_COLOR As Long = 12632256 'RGB(192,192,192)
 Private Const SUFFIX_CURRENTLY_ACTIVE  As String = " (active)"
+Private Const NO_STATES_FOUND As String = "No saved Sort Order States found."
 
 Public Sub InitializeTreeView(ByVal TreeView As TreeView)
     With TreeView
@@ -24,6 +25,7 @@ Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeVie
     LoadWorkbookNode ViewModel, TreeView
     LoadListObjectNodes ViewModel, TreeView
     LoadSortOrderStateNodes ViewModel, TreeView
+    CheckNoSortOrderStatesFound ViewModel, TreeView
 End Sub
 
 Private Sub LoadWorkbookNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
@@ -43,7 +45,6 @@ Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal Tre
     Dim SortOrderState  As SortOrderState
     For Each SortOrderState In ViewModel.SortOrderStates
         ListObjectName = SortOrderState.ListObjectName
-        Debug.Print ListObjectName
         If Not ExistsInCollection(ListObjectNames, ListObjectName) Then
             If ExistsInCollection(AllListObjects, ListObjectName) Then
                 ListObjectNames.Add ListObjectName
@@ -61,7 +62,6 @@ Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal Tre
     Dim Node As Node
     Dim ListObjectNameVariant As Variant
     For Each ListObjectNameVariant In ListObjectNames
-        Debug.Print "Creating tree node " & ListObjectNameVariant
         Set Node = TreeView.Nodes.Add(Relative:=ParentNode, relationship:=tvwChild, Key:=ListObjectNameVariant, text:=ListObjectNameVariant, Image:="FileSaveAsExcelXlsx")
         Node.Expanded = True
     Next ListObjectNameVariant
@@ -99,3 +99,11 @@ Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal
        End If
     Next SortOrderState
 End Sub
+
+Private Sub CheckNoSortOrderStatesFound(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
+    If TreeView.Nodes.Count <> 1 Then Exit Sub
+    Dim Node As Node
+    Set Node = TreeView.Nodes.Add(Relative:=TreeView.Nodes.Item("ROOT"), relationship:=tvwChild, text:=NO_STATES_FOUND)
+    Node.ForeColor = GREY_TEXT_COLOR
+End Sub
+

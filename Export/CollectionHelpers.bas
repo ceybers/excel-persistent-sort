@@ -30,3 +30,12 @@ Public Function ExistsInCollection(ByVal Collection As Object, ByVal Value As Va
         End If
     Next ThisValue
 End Function
+
+Public Sub CollectionClear(ByVal Collection As Collection)
+    Debug.Assert Not Collection Is Nothing
+    
+    Dim i As Long
+    For i = Collection.Count To 1 Step -1
+        Collection.Remove i
+    Next i
+End Sub
