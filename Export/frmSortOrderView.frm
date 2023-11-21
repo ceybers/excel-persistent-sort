@@ -1,10 +1,10 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmSortOrderView 
    Caption         =   "Sort Order Manager"
-   ClientHeight    =   5820
+   ClientHeight    =   6450
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   9360.001
+   ClientWidth     =   7500
    OleObjectBlob   =   "frmSortOrderView.frx":0000
    StartUpPosition =   1  'CenterOwner
 End
@@ -25,6 +25,10 @@ Private Type TState
     ViewModel As SortOrderViewModel
 End Type
 Private This As TState
+
+Private Sub cmbApply_Click()
+
+End Sub
 
 Private Sub cmbClose_Click()
     OnCancel
@@ -53,6 +57,10 @@ Private Sub cmbRemoveAll_Click()
     InitalizeFromViewModel
 End Sub
 
+Private Sub frmSelectedTable_Click()
+
+End Sub
+
 Private Sub lvSortOrders_DblClick()
     TryApplySortOrder
 End Sub
@@ -72,6 +80,7 @@ End Sub
 Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
     Set This.ViewModel = ViewModel
     
+    InitalizeLabelPictures
     InitializeListView
     InitalizeFromViewModel
     This.IsCancelled = False
@@ -150,4 +159,11 @@ Private Sub LoadSortOrderStateToListView(ByVal SortOrderState As SortOrderState,
     If SortOrderState.ListObjectName = This.ViewModel.ListObject.Name Then
         ListItem.ListSubItems.Item(1).ReportIcon = "TableStyleColumnHeaders"
     End If
+End Sub
+
+Private Sub InitalizeLabelPictures()
+    Set Me.lblOptionsPicture.Picture = Application.CommandBars.GetImageMso("AdvancedFileProperties", 24, 24)
+    Set Me.lblPreviewSortOrderPicture.Picture = Application.CommandBars.GetImageMso("SortDialog", 24, 24)
+    Set Me.lblSavedSortOrdersPicture.Picture = Application.CommandBars.GetImageMso("StarRatedFull", 24, 24)
+    Set Me.lblSelectedTablePicture.Picture = Application.CommandBars.GetImageMso("TableAutoFormat", 24, 24)
 End Sub
