@@ -24,7 +24,7 @@ Public Function ExistsInCollection(ByVal Collection As Object, ByVal Value As Va
     For Each ThisValue In Collection
         'If ThisValue = Value Then
         If CStr(ThisValue) = CStr(Value) Then
-        'If StrComp(ThisValue, Value) Then ' Run-time error '458' Variable uses an Automation Type supported in Visual Basic
+            'If StrComp(ThisValue, Value) Then ' Run-time error '458' Variable uses an Automation Type supported in Visual Basic
             ExistsInCollection = True
             Exit Function
         End If
@@ -39,3 +39,4 @@ Public Sub CollectionClear(ByVal Collection As Collection)
         Collection.Remove i
     Next i
 End Sub
+

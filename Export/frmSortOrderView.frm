@@ -13,19 +13,41 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-
 '@Folder "MVVM.SortOrder.Views"
 Option Explicit
 Implements IView
+
+Private Const MSG_TITLE As String = "Persistent Sort Order Tool"
+Private Const MSG_REMOVE_STATE As String = "Remove this Sort Order state?"
+Private Const MSG_REMOVE_ALL_STATES As String = "Remove ALL Sort Order states?"
 
 Private Type TState
     IsCancelled As Boolean
     ViewModel As SortOrderViewModel
 End Type
+
 Private This As TState
 
 Private Sub cboCloseOnApply_Change()
     This.ViewModel.DoCloseOnApply = Me.cboCloseOnApply.Value
+End Sub
+
+Private Sub cboPartialApply_Click()
+    This.ViewModel.DoPartialApply = Me.cboPartialApply.Value
+    UpdateSelectedTable
+    UpdateTreeView
+    UpdateListView
+End Sub
+
+Private Sub cboPartialMatch_Click()
+    This.ViewModel.DoPartialMatch = Me.cboPartialMatch.Value
+    UpdateSelectedTable
+    UpdateTreeView
+    UpdateListView
+End Sub
+
+Private Sub cboReassociate_Click()
+    This.ViewModel.DoAssociateOnApply = Me.cboReassociate.Value
 End Sub
 
 Private Sub cmbApply_Click()
@@ -44,7 +66,7 @@ Private Sub cmbClose_Click()
 End Sub
 
 Private Sub cmbRemove_Click()
-    If vbNo = MsgBox("Remove this Sort Order state?", vbExclamation + vbYesNo + vbDefaultButton2) Then
+    If vbNo = MsgBox(MSG_REMOVE_STATE, vbExclamation + vbYesNo + vbDefaultButton2, MSG_TITLE) Then
         Exit Sub
     End If
     
@@ -55,7 +77,7 @@ Private Sub cmbRemove_Click()
 End Sub
 
 Private Sub cmbRemoveAll_Click()
-    If vbNo = MsgBox("Remove ALL Sort Order states?", vbExclamation + vbYesNo + vbDefaultButton2) Then
+    If vbNo = MsgBox(MSG_REMOVE_ALL_STATES, vbExclamation + vbYesNo + vbDefaultButton2, MSG_TITLE) Then
         Exit Sub
     End If
     
@@ -76,25 +98,21 @@ Private Sub lblOptionsPicture_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     frmAbout.Show
 End Sub
 
-Private Sub tvStates_DblClick()
-    If This.ViewModel.Apply Then
-        If This.ViewModel.DoCloseOnApply Then
-            Me.Hide
-        Else
-            UpdateSelectedTable
-            UpdateTreeView
-            UpdateListView
-        End If
-    End If
-End Sub
+'Private Sub tvStates_DblClick()
+    'If This.ViewModel.Apply Then
+    '    If This.ViewModel.DoCloseOnApply Then
+    '        Me.Hide
+    '    Else
+    '        UpdateSelectedTable
+    '        UpdateTreeView
+    '        UpdateListView
+    '    End If
+    'End If
+'End Sub
 
 Private Sub tvStates_NodeClick(ByVal Node As MSComctlLib.Node)
-    If This.ViewModel.TrySelect(Node.Key) Then
-        UpdateListView
-        Me.cmbRemove.Enabled = True
-    Else
-        Me.cmbRemove.Enabled = False
-    End If
+    This.ViewModel.TrySelect Node.Key
+    UpdateListView
 End Sub
 
 Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
@@ -124,35 +142,38 @@ End Function
 Private Sub InitalizeFromViewModel()
     UpdateSelectedTable
     
-    UpdateOptions
-    
     SortOrderToTreeView.InitializeTreeView Me.tvStates
     UpdateTreeView
     
     SortOrderToListView.InitializeListView Me.lvPreview
     UpdateListView
+    
     Me.cmbApply.Enabled = False
-End Sub
-
-Private Sub UpdateOptions()
-    Me.cboCloseOnApply = This.ViewModel.DoCloseOnApply
+    
+    UpdateOptions
 End Sub
 
 Private Sub UpdateSelectedTable()
-    Me.txtTableName = This.ViewModel.CurrentSortState.ListObjectName
-    Me.txtSortOrder = This.ViewModel.CurrentSortState.GetCaption
+    Me.txtTableName.Value = This.ViewModel.CurrentSortState.ListObjectName
+    Me.txtSortOrder.Value = This.ViewModel.CurrentSortState.GetCaption
     Me.cmbSave.Enabled = This.ViewModel.CurrentSortState.HasSortOrder
     
     Me.cmbSave.Enabled = This.ViewModel.CanSave
     Me.cmbSave.Caption = IIf(This.ViewModel.CanSave, "Save", "Saved")
 End Sub
 
+Private Sub UpdateOptions()
+    Me.cboCloseOnApply.Value = This.ViewModel.DoCloseOnApply
+    Me.cboPartialApply.Value = This.ViewModel.DoPartialApply
+    Me.cboPartialMatch.Value = This.ViewModel.DoPartialMatch
+    Me.cboReassociate.Value = This.ViewModel.DoAssociateOnApply
+End Sub
+
 Private Sub UpdateTreeView()
     SortOrderToTreeView.Load This.ViewModel, Me.tvStates
     
-    Me.cmbPrune.Enabled = (This.ViewModel.SortOrderStates.Count > 0)
+    Me.cmbPrune.Enabled = (This.ViewModel.SortOrderStates.Count > 0) ' NYI
     Me.cmbRemove.Enabled = False
-    'Me.cmbRemove.Enabled = (This.ViewModel.SortOrderStates.Count > 0)
     Me.cmbRemoveAll.Enabled = (This.ViewModel.SortOrderStates.Count > 0)
 End Sub
 
@@ -160,28 +181,44 @@ Private Sub UpdateListView()
     SortOrderToListView.Load This.ViewModel, Me.lvPreview
     Me.cmbApply.Caption = "Apply"
     Me.cmbApply.Enabled = False
+    Me.cmbRemove.Enabled = False
     If This.ViewModel.SelectedSortState Is Nothing Then Exit Sub
     
-    Me.cmbApply.Enabled = This.ViewModel.SelectedSortState.CanApply(This.ViewModel.ListObject)
-    Me.cmbApply.Caption = "Apply"
+    If This.ViewModel.SelectedSortState.CanApply(This.ViewModel.ListObject) Then
+        Me.cmbApply.Caption = "Apply"
+        Me.cmbApply.Enabled = True
+    End If
     
+    If Not This.ViewModel.DoPartialApply Then
+        If This.ViewModel.SelectedSortState.IsPartialMatch(This.ViewModel.ListObject) Then
+            'Me.cmbApply.Caption = "Partial match"
+            Me.cmbApply.Enabled = False
+        End If
+    End If
+    
+    ' Check if SelectedSortState is already applied as CurrentSortState
     If Not This.ViewModel.CurrentSortState Is Nothing Then
         If This.ViewModel.SelectedSortState.Equals(This.ViewModel.CurrentSortState) Then
-            Me.cmbApply.Enabled = False
             Me.cmbApply.Caption = "Applied"
+            Me.cmbApply.Enabled = False
         End If
     End If
     
     Me.cmbRemove.Enabled = True
+    
+    If Me.tvStates.SelectedItem.Key = "UNSAVED" Then
+        Me.cmbRemove.Enabled = False
+    End If
 End Sub
 
 Private Sub InitalizeLabelPictures()
     InitalizeLabelPicture Me.lblOptionsPicture, "AdvancedFileProperties"
     InitalizeLabelPicture Me.lblPreviewSortOrderPicture, "SortDialog"
-    InitalizeLabelPicture Me.lblSavedSortOrdersPicture, "StarRatedFull"
+    InitalizeLabelPicture Me.lblSavedSortOrdersPicture, "SaveSelectionToQuickTablesGallery"
     InitalizeLabelPicture Me.lblSelectedTablePicture, "TableAutoFormat"
 End Sub
 
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
     Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
 End Sub
+

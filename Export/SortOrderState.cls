@@ -11,7 +11,7 @@ Attribute VB_Exposed = False
 Option Explicit
 
 Private Const TRIM_FIELD_NAME_LENGTH As Long = 16
-Private Const NO_SORT_ORDER = "(no sort order)"
+Private Const NO_SORT_ORDER As String = "(no sort order)"
 
 Private Type TState
     WorksheetName As String
@@ -22,6 +22,7 @@ Private Type TState
     'LastUsedTime as Date
     'Comments as String ' base64 and multiline
 End Type
+
 Private This As TState
 
 Public Property Get HasSortOrder() As Boolean
@@ -90,6 +91,20 @@ Public Function CanApply(ByVal ListObject As ListObject) As Boolean
     Next SortFieldState
 End Function
 
+Public Function IsPartialMatch(ByVal ListObject As ListObject) As Boolean
+    Dim SortFieldState As SortFieldState
+    
+    Dim n As Long
+    
+    For Each SortFieldState In This.SortFields
+        If ListColumnExists(ListObject, SortFieldState.ColumnName) Then
+            n = n + 1
+        End If
+    Next SortFieldState
+    
+    IsPartialMatch = (n > 0) And (n < This.SortFields.Count)
+End Function
+
 Public Function Apply(ByVal ListObject As ListObject) As Boolean
     With ListObject.Sort
         .SortFields.Clear
@@ -103,6 +118,8 @@ Public Function Apply(ByVal ListObject As ListObject) As Boolean
         .MatchCase = False
         .Apply
     End With
+    
+    Apply = True
 End Function
 
 Private Sub ApplySortFieldState(ByVal ListObject As ListObject, ByVal SortFieldState As SortFieldState)
@@ -111,7 +128,7 @@ Private Sub ApplySortFieldState(ByVal ListObject As ListObject, ByVal SortFieldS
     End If
     
     Dim KeyRange As Range
-    Set KeyRange = ListObject.ListColumns(SortFieldState.ColumnName).DataBodyRange
+    Set KeyRange = ListObject.ListColumns.Item(SortFieldState.ColumnName).DataBodyRange
     
     ListObject.Sort.SortFields.Add Key:=KeyRange, Order:=SortFieldState.SortOrder
 End Sub
@@ -162,7 +179,7 @@ Public Function ToBase64() As String
     ToBase64 = Result
 End Function
 
-Public Function GetCaption()
+Public Function GetCaption() As String
     Dim Result As String
     
     Dim SortFieldState As SortFieldState
@@ -186,3 +203,4 @@ End Function
 Public Function Equals(ByVal RHS As SortOrderState) As Boolean
     Equals = (Me.ToBase64 = RHS.ToBase64)
 End Function
+

@@ -14,6 +14,7 @@ Private Type TState
     ColumnName As String
     SortOrder As Long
 End Type
+
 Private This As TState
 
 Public Property Get ColumnName() As String
@@ -31,3 +32,4 @@ End Property
 Public Property Let SortOrder(ByVal vNewValue As Long)
     This.SortOrder = vNewValue
 End Property
+

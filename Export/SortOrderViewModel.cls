@@ -12,9 +12,13 @@ Option Explicit
 
 Private Const XML_SETTINGS_NAME As String = "PersistentSortOrder"
 Private Const SETTING_COLLECTION_NAME As String = "SortOrderStates"
+Private Const SETTING_LAST_UPDATED As String = "LastUpdated"
+Private Const DO_ASSOCIATE_ON_APPLY As String = "DO_ASSOCIATE_ON_APPLY"
+Private Const DO_PARTIAL_MATCH As String = "DO_PARTIAL_MATCH"
+Private Const DO_PARTIAL_APPLY As String = "DO_PARTIAL_APPLY"
 Private Const DO_CLOSE_ON_APPLY As String = "DO_CLOSE_ON_APPLY"
 
-Event PropertyChanged(ByVal PropertyName As String)
+'Event PropertyChanged(ByVal PropertyName As String)
 
 Private Type TState
     Workbook As Workbook
@@ -25,7 +29,35 @@ Private Type TState
     
     Settings As ISettingsModel
 End Type
+
 Private This As TState
+
+Public Property Get DoAssociateOnApply() As Boolean
+    DoAssociateOnApply = This.Settings.Workbook.GetFlag(DO_ASSOCIATE_ON_APPLY)
+End Property
+
+Public Property Let DoAssociateOnApply(ByVal vNewValue As Boolean)
+    This.Settings.Workbook.SetFlag DO_ASSOCIATE_ON_APPLY, vNewValue
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
+End Property
+
+Public Property Get DoPartialMatch() As Boolean
+    DoPartialMatch = This.Settings.Workbook.GetFlag(DO_PARTIAL_MATCH)
+End Property
+
+Public Property Let DoPartialMatch(ByVal vNewValue As Boolean)
+    This.Settings.Workbook.SetFlag DO_PARTIAL_MATCH, vNewValue
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
+End Property
+
+Public Property Get DoPartialApply() As Boolean
+    DoPartialApply = This.Settings.Workbook.GetFlag(DO_PARTIAL_APPLY)
+End Property
+
+Public Property Let DoPartialApply(ByVal vNewValue As Boolean)
+    This.Settings.Workbook.SetFlag DO_PARTIAL_APPLY, vNewValue
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
+End Property
 
 Public Property Get DoCloseOnApply() As Boolean
     DoCloseOnApply = This.Settings.Workbook.GetFlag(DO_CLOSE_ON_APPLY)
@@ -33,6 +65,7 @@ End Property
 
 Public Property Let DoCloseOnApply(ByVal vNewValue As Boolean)
     This.Settings.Workbook.SetFlag DO_CLOSE_ON_APPLY, vNewValue
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Property
 
 Public Property Get CurrentSortState() As SortOrderState
@@ -54,20 +87,16 @@ Public Property Get ListObject() As ListObject
     Set ListObject = This.ListObject
 End Property
 
-Public Property Set ListObject(ByVal vNewValue As ListObject)
-    Set This.ListObject = vNewValue
-End Property
+'Public Property Set ListObject(ByVal vNewValue As ListObject)
+'    Set This.ListObject = vNewValue
+'End Property
 
 Public Property Get SortOrderStates() As Collection
     Set SortOrderStates = This.SortOrderStates
 End Property
 
 Public Property Get IsValid() As Boolean
-    'If This.AvailableTables.Selected Is Nothing Then Exit Property
-    'If This.AvailableColumns.Selected Is Nothing Then Exit Property
-    'If CanSelectNone = False Then Exit Property
-    
-    IsValid = True
+    IsValid = (Not This.ListObject Is Nothing)
 End Property
 
 Public Sub Load(ByVal ListObject As ListObject)
@@ -85,16 +114,29 @@ Private Sub LoadSettings()
     
     Dim WorkbookSettings As XMLSettings
     Set WorkbookSettings = XMLSettingsFactory.CreateWorkbookSettings( _
-      Workbook:=This.Workbook, _
-      RootNode:=XML_SETTINGS_NAME)
+                           Workbook:=This.Workbook, _
+                           RootNode:=XML_SETTINGS_NAME)
     
     Dim ASettingsModel As ISettingsModel
     Set ASettingsModel = SettingsModel.Create() _
-      .AddWorkbookSettings(WorkbookSettings)
+        .AddWorkbookSettings(WorkbookSettings)
     
     Set This.Settings = ASettingsModel
     
+    If This.Settings.Workbook.GetSetting(SETTING_LAST_UPDATED) = Empty Then
+        ApplyDefaultSettings
+    End If
     'WorkbookSettings.Load
+End Sub
+
+Private Sub ApplyDefaultSettings()
+    With This.Settings.Workbook
+        .SetFlag DO_ASSOCIATE_ON_APPLY, True
+        .SetFlag DO_PARTIAL_MATCH, True
+        .SetFlag DO_PARTIAL_APPLY, True
+        .SetFlag DO_CLOSE_ON_APPLY, False        ' DEBUG True
+        .SetSetting SETTING_LAST_UPDATED, CStr(Now())
+    End With
 End Sub
 
 Private Sub Reload()
@@ -120,21 +162,15 @@ End Sub
 Public Function Apply() As Boolean
     If This.SelectedSortState Is Nothing Then Exit Function
     If Not This.SelectedSortState.CanApply(This.ListObject) Then Exit Function
+    
     This.SelectedSortState.Apply This.ListObject
+    
+    If Me.DoAssociateOnApply And IsSortOrderStateOrphaned(This.SelectedSortState) Then
+        AssociateSortOrderState This.SelectedSortState
+    End If
+    
     Apply = True
 End Function
-
-Public Sub ZZZ_ApplySortOrderState(ByVal Index As Long)
-    Dim SortOrderState As SortOrderState
-    Set SortOrderState = This.SortOrderStates.Item(Index)
-    SortOrderState.Apply This.ListObject
-End Sub
-
-Public Sub RemoveByIndex(ByVal Index As Long)
-    'MsgBox "NYI RemoveByIndex"
-    RemoveSavedSortOrders Index
-    Reload
-End Sub
 
 Public Sub RemoveSelected()
     If This.SelectedSortState Is Nothing Then Exit Sub
@@ -157,6 +193,7 @@ Public Sub RemoveSelected()
     Next i
     
     This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, SavedCollection
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 
     Set This.SelectedSortState = Nothing
 End Sub
@@ -169,35 +206,8 @@ Public Sub RemoveAll()
     Dim EmptyCollection As Collection
     Set EmptyCollection = New Collection
     This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, EmptyCollection
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Sub
-
-Public Function ZZZ_LoadToTreeView(ByVal TreeView As TreeView)
-    TreeView.Nodes.Clear
-    
-    Dim Node As Node
-    Set Node = TreeView.Nodes.Add(text:=This.Workbook.Name, Image:="FileSaveAsExcelXlsx")
-    Node.Expanded = True
-    
-    Dim Node2 As Node
-    Set Node2 = TreeView.Nodes.Add(Relative:=Node, relationship:=tvwChild, text:="Table1", Image:="CreateTable")
-    Node2.Expanded = True
-    
-    Dim Node3 As Node
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="Col A > Col B", Image:="SortDialog")
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="Col B > Col A", Image:="SortDialog")
-    
-    Set Node2 = TreeView.Nodes.Add(Relative:=Node, relationship:=tvwChild, text:="Table2", Image:="CreateTable")
-    Node2.Expanded = True
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="foo > bar", Image:="SortDialog")
-    
-    Set Node2 = TreeView.Nodes.Add(Relative:=Node, relationship:=tvwChild, text:="(Orphaned)", Image:="CreateTable")
-    Node2.Expanded = True
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="apple > banana", Image:="SortDialog")
-    Set Node3 = TreeView.Nodes.Add(Relative:=Node2, relationship:=tvwChild, text:="zebra > xray", Image:="SortDialog")
-    
-    'Node2.Expanded = True
-    
-End Function
 
 Public Function CanSave() As Boolean
     Dim RHSSortOrderState As SortOrderState
@@ -210,6 +220,12 @@ Public Function CanSave() As Boolean
 End Function
 
 Public Function TrySelect(ByVal Key As String) As Boolean
+    If Key = "UNSAVED" Then
+        Set This.SelectedSortState = CurrentSortState
+        TrySelect = True
+        Exit Function
+    End If
+    
     Dim SortOrderState As SortOrderState
     For Each SortOrderState In This.SortOrderStates
         If SortOrderState.ToBase64 = Key Then
@@ -223,14 +239,57 @@ Public Function TrySelect(ByVal Key As String) As Boolean
 End Function
 
 Public Sub Save()
-    Debug.Assert Not This.CurrentSortState Is Nothing
+    Debug.Assert Not CurrentSortState Is Nothing
     
     Dim SavedCollection As Collection
     Set SavedCollection = This.Settings.Workbook.GetCollection(SETTING_COLLECTION_NAME)
     
-    SavedCollection.Add Item:=This.CurrentSortState.ToBase64
+    SavedCollection.Add Item:=CurrentSortState.ToBase64
     
     This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, SavedCollection
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
     
     Reload
 End Sub
+
+Private Function IsSortOrderStateOrphaned(ByVal SortOrderState As SortOrderState)
+    Dim AllListObjects As Collection
+    Set AllListObjects = ListObjectHelpers.GetAllListObjects(This.Workbook)
+    
+    Dim ListObject As ListObject
+    For Each ListObject In AllListObjects
+        If ListObject.Name = SortOrderState.ListObjectName Then
+            Exit Function
+        End If
+    Next ListObject
+    
+    IsSortOrderStateOrphaned = True
+End Function
+
+Private Sub AssociateSortOrderState(ByVal SortOrderState As SortOrderState)
+    Dim OldKey As String
+    OldKey = SortOrderState.ToBase64
+    
+    SortOrderState.WorksheetName = This.ListObject.Parent.Name
+    SortOrderState.ListObjectName = This.ListObject.Name
+
+    Dim SavedCollection As Collection
+    Set SavedCollection = This.Settings.Workbook.GetCollection(SETTING_COLLECTION_NAME)
+    
+    Dim NewCollection As Collection
+    Set NewCollection = New Collection
+    
+    Dim SortOrderString As Variant
+    For Each SortOrderString In SavedCollection
+        If SortOrderString = OldKey Then
+            NewCollection.Add SortOrderState.ToBase64
+        Else
+            NewCollection.Add SortOrderString
+        End If
+    Next SortOrderString
+    
+    This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, NewCollection
+    This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
+End Sub
+
+

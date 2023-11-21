@@ -26,3 +26,4 @@ Public Function HasListColumn(ByVal ListObject As ListObject, ByVal ListColumnNa
         End If
     Next ListColumn
 End Function
+

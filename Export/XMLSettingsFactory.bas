@@ -30,3 +30,4 @@ Public Function CreateTableSettings(ByVal WorkbookSettings As XMLSettings, ByVal
     
     Set CreateTableSettings = Result
 End Function
+

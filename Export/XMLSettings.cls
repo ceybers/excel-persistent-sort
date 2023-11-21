@@ -24,6 +24,7 @@ Private Type TState
     Workbook As Workbook
     XPathPrefix As String
 End Type
+
 Private This As TState
 
 ' ---
@@ -53,12 +54,12 @@ Private Function ISettings_GetFlag(ByVal FlagName As String) As Boolean
     
     If Not Result Is Nothing Then
         Select Case UCase$(Result.text)
-            Case TRUE_SYMBOL:
-                ISettings_GetFlag = True
-            Case FALSE_SYMBOL:
-                ISettings_GetFlag = False
-            Case Else:
-                Debug.Assert False
+        Case TRUE_SYMBOL:
+            ISettings_GetFlag = True
+        Case FALSE_SYMBOL:
+            ISettings_GetFlag = False
+        Case Else:
+            Debug.Assert False
         End Select
     End If
 End Function
@@ -160,3 +161,4 @@ Private Function GetCustomXMLPart() As CustomXMLPart
     Workbook.CustomXMLParts.Add "<" & RootNode & "/>"
     Set GetCustomXMLPart = Workbook.CustomXMLParts.Item(Workbook.CustomXMLParts.Count)
 End Function
+

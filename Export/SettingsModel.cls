@@ -15,8 +15,9 @@ Implements ISettingsModel
 Private Type TState
     UserSettings As ISettings
     WorkbookSettings As ISettings
-    TableSettings As Scripting.Dictionary ' of type ISettings
+    TableSettings As Scripting.Dictionary        ' of type ISettings
 End Type
+
 Private This As TState
 
 Private Function ISettingsModel_User() As ISettings
@@ -45,6 +46,7 @@ Private Sub Class_Initialize()
     Set This.TableSettings = New Scripting.Dictionary
 End Sub
 
+'@Description "Creates a new XMLSettingsModel for the given Workbook and RootNode."
 Public Function Create() As SettingsModel
 Attribute Create.VB_Description = "Creates a new XMLSettingsModel for the given Workbook and RootNode."
     Dim Result As SettingsModel

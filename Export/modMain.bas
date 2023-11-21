@@ -1,11 +1,11 @@
 Attribute VB_Name = "modMain"
-'@Folder("VBAProject")
+'@Folder "SortOrderState"
 Option Explicit
 
-Public Sub TestMVVM()
-    ThisWorkbook.Worksheets(1).Activate
-    ThisWorkbook.Worksheets(1).Range("A2").Activate
+'@EntryPoint "Open UI for PersistentSortOrderTool"
+Public Sub PersistentSortOrderTool()
     If Selection.ListObject Is Nothing Then
+        MsgBox "Select a table before running Persistent Sort Order Tool.", vbExclamation, "Persistent Sort Order Tool"
         Exit Sub
     End If
     
@@ -16,9 +16,6 @@ Public Sub TestMVVM()
     Dim ViewAsInterface As IView
     Set ViewAsInterface = New frmSortOrderView
     
-    If ViewAsInterface.ShowDialog(ViewModel) Then
-        'Debug.Print "ShowDialog = TRUE"
-    Else
-        'Debug.Print "ShowDialog = FALSE"
-    End If
+    ViewAsInterface.ShowDialog ViewModel
 End Sub
+

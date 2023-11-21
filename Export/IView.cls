@@ -10,6 +10,7 @@ Attribute VB_Exposed = False
 '@Folder "MVVM.Infrastructure.Abstract"
 '@Interface
 Option Explicit
- 
+
 Public Function ShowDialog(ByVal ViewModel As Object) As Boolean
 End Function
+

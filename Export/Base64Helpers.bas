@@ -2,7 +2,7 @@ Attribute VB_Name = "Base64Helpers"
 '@Folder "MVVM.SortOrder.Helpers"
 Option Explicit
 
-Function StringtoBase64(ByVal StringValue As String) As String
+Public Function StringtoBase64(ByVal StringValue As String) As String
     Dim ByteArray() As Byte
     ByteArray = StrConv(StringValue, vbFromUnicode)
     
@@ -16,13 +16,13 @@ Function StringtoBase64(ByVal StringValue As String) As String
         .NodeTypedValue = ByteArray
     End With
     
-    StringtoBase64 = Replace(XMLElement.text, vbLf, "")
+    StringtoBase64 = Replace(XMLElement.text, vbLf, vbNullString)
     
     Set XMLElement = Nothing
     Set XMLObject = Nothing
 End Function
 
-Function Base64toString(ByVal Base64Value As String) As String
+Public Function Base64toString(ByVal Base64Value As String) As String
     Dim XMLObject As Object
     Set XMLObject = CreateObject("MSXML2.DOMDocument")
     
@@ -38,3 +38,4 @@ Function Base64toString(ByVal Base64Value As String) As String
     Set XMLElement = Nothing
     Set XMLObject = Nothing
 End Function
+

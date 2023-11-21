@@ -34,9 +34,9 @@ Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal ListView As ListVie
         
         ListItem.ListSubItems.Add text:=SortFieldState.ColumnName
         If SortFieldState.SortOrder = 0 Then
-            ListItem.ListSubItems.Add text:="Asc", ReportIcon:="SortUp"
-        Else
             ListItem.ListSubItems.Add text:="Desc", ReportIcon:="SortDown"
+        Else
+            ListItem.ListSubItems.Add text:="Asc", ReportIcon:="SortUp"
         End If
         
         If Not ListObjectHelpers.HasListColumn(ByVal ViewModel.ListObject, SortFieldState.ColumnName) Then
@@ -47,3 +47,4 @@ Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal ListView As ListVie
     Next SortFieldState
     
 End Sub
+
