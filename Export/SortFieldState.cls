@@ -131,4 +131,9 @@ Public Sub Add(ByVal ListObject As ListObject)
     End Select
 End Sub
 
+Public Sub RemapColumnName(ByVal ColumnName As String)
+    This.ColumnName = ColumnName
+    This.Exists = True
+End Sub
+
 

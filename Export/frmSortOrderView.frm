@@ -112,17 +112,11 @@ Private Sub lblOptionsPicture_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     frmAbout.Show
 End Sub
 
-'Private Sub tvStates_DblClick()
-'If This.ViewModel.Apply Then
-'    If This.ViewModel.DoCloseOnApply Then
-'        Me.Hide
-'    Else
-'        UpdateSelectedTable
-'        UpdateTreeView
-'        UpdateListView
-'    End If
-'End If
-'End Sub
+Private Sub lvPreview_ItemClick(ByVal Item As MSComctlLib.ListItem)
+    If This.ViewModel.TryRemapColumn(Item.Index) Then
+        UpdateListView
+    End If
+End Sub
 
 Private Sub tvStates_NodeClick(ByVal Node As MSComctlLib.Node)
     This.ViewModel.TrySelect Node.Key
@@ -233,7 +227,7 @@ End Sub
 
 Private Sub InitalizeLabelPictures()
     InitalizeLabelPicture Me.lblOptionsPicture, "AdvancedFileProperties"
-    InitalizeLabelPicture Me.lblPreviewSortOrderPicture, "SortDialog"
+    InitalizeLabelPicture Me.lblPreviewSortOrderPicture, "FindTaggedNotes"
     InitalizeLabelPicture Me.lblSavedSortOrdersPicture, "SaveSelectionToQuickTablesGallery"
     InitalizeLabelPicture Me.lblSelectedTablePicture, "TableAutoFormat"
 End Sub

@@ -1,5 +1,5 @@
 Attribute VB_Name = "SortOrderToListView"
-'@Folder("MVVM.SortOrder.ViewModel")
+'@Folder "MVVM.SortOrder.ValueConverters"
 Option Explicit
 
 Private Const MSO_COLUMN_EXISTS As String = "AcceptInvitation"
@@ -49,16 +49,16 @@ Private Sub LoadSortFieldStateToListView(ByVal ListView As ListView, ByVal SortF
     
     Select Case SortFieldState.SortOn
     Case xlSortOnCellColor
-        ListItem.ListSubItems.Add text:="Cell Color"
+        ListItem.ListSubItems.Add text:="Cell Color", ReportIcon:="FontFillBackColorPicker"
     Case xlSortOnFontColor
-        ListItem.ListSubItems.Add text:="Font Color"
+        ListItem.ListSubItems.Add text:="Font Color", ReportIcon:="GroupFont"
     Case xlSortOnIcon
-        ListItem.ListSubItems.Add text:="Icon"
+        ListItem.ListSubItems.Add text:="Icon", ReportIcon:="ConditionalFormattingIconSetsGallery"
     Case xlSortOnValues
         If SortFieldState.CustomOrder = Empty Then
-            ListItem.ListSubItems.Add text:="Values"
+            ListItem.ListSubItems.Add text:="Values", ReportIcon:="ChangeCaseDialogClassic"
         Else
-            ListItem.ListSubItems.Add text:="Values (Custom)"
+            ListItem.ListSubItems.Add text:="Values (Custom)", ReportIcon:="ContentControlDropDownList"
         End If
     End Select
     

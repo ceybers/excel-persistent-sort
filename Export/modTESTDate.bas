@@ -24,7 +24,7 @@ Public Sub SetSavedSortOrders()
     SortOrderStates.Add Item:="Sheet1:Table1:Q29sQg==,0,2,eHJheSx5YWNodCx6ZWJyYQ==;Q29sQQ==,0,1,"
     SortOrderStates.Add Item:="Sheet1:Table1:Q29sQQ==,0,1,;Q29sQg==,0,2,eHJheSx5YWNodCx6ZWJyYQ=="
     SortOrderStates.Add Item:="Sheet1:Table1:R2FtbWE=,0,1,;Q29sQg==,0,1,;Q29sQQ==,0,1,"
-    SortOrderStates.Add Item:="Sheet1:Table2:R2FtbWE=,0,1,;Q29sQg==,0,1,;Q29sQQ==,0,1,"
+    SortOrderStates.Add Item:="Sheet1:Orphan:R2FtbWE=,0,1,;Q29sQg==,0,1,;Q29sQQ==,0,1,"
     SortOrderStates.Add Item:="Sheet1:Orphan:R2FtbWE=,0,1,"
     SortOrderStates.Add Item:="Sheet1:Table1:Q29sQQ==,0,1,"
     SortOrderStates.Add Item:="Sheet1:Table1:Q29sQw==,1,1,MTM1NTE2MTU=;Q29sQQ==,0,1,"

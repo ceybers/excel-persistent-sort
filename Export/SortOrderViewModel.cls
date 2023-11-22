@@ -153,10 +153,14 @@ Public Function Apply() As Boolean
     
     This.SelectedSortState.Apply This.ListObject
     
+    ' If we manually remapped a column name, we will commit it to the persistent
+    ' storage here. This must be done before attempting to reassociate orphans.
+    SaveSortOrderStates
+    
     If Me.DoAssociateOnApply And IsSortOrderStateOrphaned(This.SelectedSortState) Then
         AssociateSortOrderState This.SelectedSortState
     End If
-    
+
     Apply = True
 End Function
 
@@ -321,5 +325,51 @@ Private Sub SaveSortOrderStates()
     This.Settings.Workbook.SetCollection SETTING_COLLECTION_NAME, NewCollection
     This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Sub
+
+Public Function TryRemapColumn(ByVal Index As Long) As Boolean
+    If This.SelectedSortState Is Nothing Then Exit Function
+    Dim SortFieldState As SortFieldState
+    Set SortFieldState = This.SelectedSortState.SortFields.Item(Index)
+    
+    Dim AvailableColumnNames As Collection
+    Set AvailableColumnNames = GetAvailableColumnNames
+    
+    Dim ViewModel As RemapColumnViewModel
+    Set ViewModel = New RemapColumnViewModel
+    ViewModel.Load GetAvailableColumnNames
+    ViewModel.CurrentColumnName = SortFieldState.ColumnName
+    
+    Dim ViewAsInterface As IView
+    Set ViewAsInterface = New frmRemapColumn
+    
+    If ViewAsInterface.ShowDialog(ViewModel) Then
+        SortFieldState.RemapColumnName ViewModel.SelectedColumnName
+        TryRemapColumn = True
+    End If
+End Function
+
+Private Function GetAvailableColumnNames() As Collection
+    Debug.Assert Not This.SelectedSortState Is Nothing
+    
+    Dim Result As Collection
+    Set Result = New Collection
+    
+    Dim SortFieldState As SortFieldState
+    
+    Dim UsedColumnNames As Collection
+    Set UsedColumnNames = New Collection
+    For Each SortFieldState In This.SelectedSortState.SortFields
+        UsedColumnNames.Add Item:=SortFieldState.ColumnName
+    Next SortFieldState
+    
+    Dim ListColumn As ListColumn
+    For Each ListColumn In This.ListObject.ListColumns
+        If Not CollectionHelpers.ExistsInCollection(UsedColumnNames, ListColumn.Name) Then
+            Result.Add Item:=ListColumn.Name
+        End If
+    Next ListColumn
+    
+    Set GetAvailableColumnNames = Result
+End Function
 
 

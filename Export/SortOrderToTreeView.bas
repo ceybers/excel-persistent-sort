@@ -1,5 +1,5 @@
 Attribute VB_Name = "SortOrderToTreeView"
-'@Folder("MVVM.SortOrder.ViewModel")
+'@Folder "MVVM.SortOrder.ValueConverters"
 Option Explicit
 
 Private Const ORPHAN_LISTOBJECT_NAME As String = "(Orphaned)"
@@ -10,7 +10,7 @@ Private Const UNSAVED_SORTORDER As String = "(current sort order)"
 Private Const NO_STATES_FOUND As String = "No saved Sort Order States found."
 Private Const MSO_WORKBOOK As String = "FileSaveAsExcelXlsx"
 Private Const MSO_LISTOBJECT As String = "CreateTable"
-Private Const MSO_LISTOBJECT_SELECTED As String = "GroupTableDrawBorders"
+Private Const MSO_LISTOBJECT_SELECTED As String = "InlineEditMenu"
 Private Const MSO_SORTORDER As String = "SortDialog"
 
 Public Sub InitializeTreeView(ByVal TreeView As TreeView)
@@ -86,6 +86,7 @@ Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal Tre
     
     If Node.text = ORPHAN_LISTOBJECT_NAME Then
         Node.ForeColor = GREY_TEXT_COLOR
+        Node.Image = "WorkflowPending"
     End If
 End Sub
 

@@ -13,9 +13,11 @@ Sometimes Excel will reset the Sort Order, which is particularly annoying when y
 
 ## Notes
 - The state of the Sort Order for a ListObject is stored by storing each SortField as a comma separated string, and the list of SortField strings as a semicolon separated string. Properties of type String are encoded as Base64 to avoid having to deal with escaping characters.
+- Colons are used to separate the Worksheet name, ListObject name, and Sort Order State, as colons are not present in any of the above.
 
 ## Screenshots
 ![Screenshot of tool in action](images/Screenshot01.PNG)
+![Screenshot of column remapping](images/Screenshot02.PNG)
 
 # Reference
 - [Sort.SortFields property (Excel) | Microsoft Learn](https://learn.microsoft.com/en-us/office/vba/api/excel.sort.sortfields)

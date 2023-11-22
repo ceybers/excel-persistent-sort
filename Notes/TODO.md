@@ -30,7 +30,13 @@
 - [x] Remove selected Sort Order State.
 - [x] Remove all Sort Order States.
 - [x] Allow viewing Sort Order State in Base64 format.
-- [x] Allow adding Sort Order State via textbox in Base64 format.
-- [ ] Sort on Cell Color, Font Color, and Icon
-- [ ] Sort Order using Custom List
-
+- [x] Allow manually adding Sort Order State via textbox in Base64 format.
+- [x] Sort on Cell Color, Font Color, and Icon.
+- [x] Indicate Sort On type with text and icon.
+- [x] Sort Order using Custom List.
+- [ ] View and edit items in Custom List (multiline text box).
+- [x] Remap Columns from Sort Order State to existing Columns in target. 
+- [ ] Gracefully handle malformed/deprecated persistent states (e.g., change in schema)
+- [ ] Ribbon button to store current state without prompts.
+- [ ] Ribbon button to attempt to restore saved state without prompts, if only one good match.
+- [ ] FIX Clicking on column to remap conflicts with having to select a column to Export. 

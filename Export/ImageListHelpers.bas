@@ -3,7 +3,7 @@ Attribute VB_Name = "ImageListHelpers"
 Option Explicit
 
 Private Const IMAGEMSO_SIZE As Long = 16
-Private Const IMAGEMSO_NAMES As String = "FileSaveAsExcelXlsx,CreateTable,AcceptInvitation,DeclineInvitation,SortUp,SortDown,SortDialog,TableInsert,HeaderFooterSheetNameInsert,CancelRequest,SendCopyFlag,TableStyleColumnHeaders,TableStyleRowHeaders,GroupTableDrawBorders"
+Private Const IMAGEMSO_NAMES As String = "FileSaveAsExcelXlsx,CreateTable,AcceptInvitation,DeclineInvitation,SortUp,SortDown,SortDialog,TableInsert,HeaderFooterSheetNameInsert,CancelRequest,SendCopyFlag,TableStyleColumnHeaders,TableStyleRowHeaders,GroupTableDrawBorders,InlineEditMenu,WorkflowPending,FontFillBackColorPicker,TextFillColorPicker,GroupFont,ConditionalFormattingIconSetsGallery,ContentControlDropDownList,ChangeCaseDialogClassic"
 
 Public Function GetImageList() As ImageList
     Dim Result As ImageList
