@@ -24,6 +24,14 @@ End Type
 
 Private This As TState
 
+Private Sub cmbRemap_Click()
+    Me.Hide
+End Sub
+
+Private Sub cmbCancel_Click()
+    OnCancel
+End Sub
+
 Private Sub lvRemapTo_ItemClick(ByVal Item As MSComctlLib.ListItem)
     This.ViewModel.TrySelect Item.text
     UpdateControls
@@ -68,16 +76,7 @@ Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoNa
     Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
 End Sub
 
-Private Sub cmbRemap_Click()
-    Me.Hide
-End Sub
-
-Private Sub cmbClose_Click()
-    OnCancel
-End Sub
-
 Private Sub UpdateControls()
     Me.txtColumnName = This.ViewModel.CurrentColumnName
     Me.cmbRemap.Enabled = (This.ViewModel.SelectedColumnName <> Empty)
 End Sub
-
