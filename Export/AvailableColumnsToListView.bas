@@ -1,12 +1,12 @@
 Attribute VB_Name = "AvailableColumnsToListView"
-'@Folder "MVVM.SortOrder.ValueConverters"
+'@Folder "MVVM.ValueConverters"
 Option Explicit
 
 Public Sub InitializeListView(ByVal ListView As ListView)
     With ListView
         .ListItems.Clear
         .ColumnHeaders.Clear
-        .ColumnHeaders.Add text:="Column Name", Width:=160
+        .ColumnHeaders.Add text:=COLUMN_NAME, Width:=ListView.Width - 16
         .Appearance = cc3D
         .BorderStyle = ccNone
         .Gridlines = True
@@ -31,4 +31,3 @@ Private Sub LoadColumnToListView(ByVal ListView As ListView, ByVal ColumnName As
     Dim ListItem As ListItem
     Set ListItem = ListView.ListItems.Add(text:=ColumnName)
 End Sub
-

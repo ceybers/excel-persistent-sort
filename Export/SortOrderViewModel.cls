@@ -7,16 +7,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder "MVVM.SortOrder.ViewModel"
+'@Folder "MVVM.ViewModel"
 Option Explicit
-
-Private Const XML_SETTINGS_NAME As String = "PersistentSortOrder"
-Private Const SETTING_COLLECTION_NAME As String = "SortOrderStates"
-Private Const SETTING_LAST_UPDATED As String = "LastUpdated"
-Private Const DO_ASSOCIATE_ON_APPLY As String = "DO_ASSOCIATE_ON_APPLY"
-Private Const DO_PARTIAL_MATCH As String = "DO_PARTIAL_MATCH"
-Private Const DO_PARTIAL_APPLY As String = "DO_PARTIAL_APPLY"
-Private Const DO_CLOSE_ON_APPLY As String = "DO_CLOSE_ON_APPLY"
 
 Private Type TState
     Workbook As Workbook
@@ -30,38 +22,38 @@ End Type
 Private This As TState
 
 Public Property Get DoAssociateOnApply() As Boolean
-    DoAssociateOnApply = This.Settings.Workbook.GetFlag(DO_ASSOCIATE_ON_APPLY)
+    DoAssociateOnApply = This.Settings.Workbook.GetFlag(SETTING_ASSOCIATE_ON_APPLY)
 End Property
 
 Public Property Let DoAssociateOnApply(ByVal vNewValue As Boolean)
-    This.Settings.Workbook.SetFlag DO_ASSOCIATE_ON_APPLY, vNewValue
+    This.Settings.Workbook.SetFlag SETTING_ASSOCIATE_ON_APPLY, vNewValue
     This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Property
 
 Public Property Get DoPartialMatch() As Boolean
-    DoPartialMatch = This.Settings.Workbook.GetFlag(DO_PARTIAL_MATCH)
+    DoPartialMatch = This.Settings.Workbook.GetFlag(SETTING_PARTIAL_MATCH)
 End Property
 
 Public Property Let DoPartialMatch(ByVal vNewValue As Boolean)
-    This.Settings.Workbook.SetFlag DO_PARTIAL_MATCH, vNewValue
+    This.Settings.Workbook.SetFlag SETTING_PARTIAL_MATCH, vNewValue
     This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Property
 
 Public Property Get DoPartialApply() As Boolean
-    DoPartialApply = This.Settings.Workbook.GetFlag(DO_PARTIAL_APPLY)
+    DoPartialApply = This.Settings.Workbook.GetFlag(SETTING_PARTIAL_APPLY)
 End Property
 
 Public Property Let DoPartialApply(ByVal vNewValue As Boolean)
-    This.Settings.Workbook.SetFlag DO_PARTIAL_APPLY, vNewValue
+    This.Settings.Workbook.SetFlag SETTING_PARTIAL_APPLY, vNewValue
     This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Property
 
 Public Property Get DoCloseOnApply() As Boolean
-    DoCloseOnApply = This.Settings.Workbook.GetFlag(DO_CLOSE_ON_APPLY)
+    DoCloseOnApply = This.Settings.Workbook.GetFlag(SETTING_CLOSE_ON_APPLY)
 End Property
 
 Public Property Let DoCloseOnApply(ByVal vNewValue As Boolean)
-    This.Settings.Workbook.SetFlag DO_CLOSE_ON_APPLY, vNewValue
+    This.Settings.Workbook.SetFlag SETTING_CLOSE_ON_APPLY, vNewValue
     This.Settings.Workbook.SetSetting SETTING_LAST_UPDATED, CStr(Now())
 End Property
 
@@ -105,7 +97,7 @@ Private Sub LoadSettings()
     Dim WorkbookSettings As XMLSettings
     Set WorkbookSettings = XMLSettingsFactory.CreateWorkbookSettings( _
                            Workbook:=This.Workbook, _
-                           RootNode:=XML_SETTINGS_NAME)
+                           RootNode:=SETTING_NAME)
     
     Dim ASettingsModel As ISettingsModel
     Set ASettingsModel = SettingsModel.Create() _
@@ -120,10 +112,10 @@ End Sub
 
 Private Sub ApplyDefaultSettings()
     With This.Settings.Workbook
-        .SetFlag DO_ASSOCIATE_ON_APPLY, True
-        .SetFlag DO_PARTIAL_MATCH, True
-        .SetFlag DO_PARTIAL_APPLY, True
-        .SetFlag DO_CLOSE_ON_APPLY, True
+        .SetFlag SETTING_ASSOCIATE_ON_APPLY, True
+        .SetFlag SETTING_PARTIAL_MATCH, True
+        .SetFlag SETTING_PARTIAL_APPLY, True
+        .SetFlag SETTING_CLOSE_ON_APPLY, True
         .SetSetting SETTING_LAST_UPDATED, CStr(Now())
     End With
 End Sub
@@ -204,7 +196,7 @@ Private Function Exists(ByVal SortOrderState As SortOrderState) As Boolean
 End Function
 
 Public Function TrySelect(ByVal Key As String) As Boolean
-    If Key = "UNSAVED" Then
+    If Key = KEY_UNSAVED Then
         Set This.SelectedSortState = CurrentSortState
         TrySelect = True
         Exit Function
@@ -371,5 +363,4 @@ Private Function GetAvailableColumnNames() As Collection
     
     Set GetAvailableColumnNames = Result
 End Function
-
 

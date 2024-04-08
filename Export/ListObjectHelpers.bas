@@ -1,5 +1,5 @@
 Attribute VB_Name = "ListObjectHelpers"
-'@Folder("MVVM.SortOrder.Helpers")
+'@Folder "Helpers.Objects"
 Option Explicit
 
 '@Description "Returns a Collection containing all the ListObjects in the given Workbook."

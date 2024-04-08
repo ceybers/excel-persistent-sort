@@ -13,9 +13,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'@Folder("MVVM.SortOrder.Views")
+'@Folder "MVVM.Views"
 Option Explicit
 Implements IView
+
+Private Const MSO_SIZE As Long = 24
 
 Private Type TState
     IsCancelled As Boolean
@@ -68,12 +70,12 @@ Private Sub InitalizeFromViewModel()
 End Sub
 
 Private Sub InitalizeLabelPictures()
-    InitalizeLabelPicture Me.lblCurrentColumnPicture, "GroupFieldsAndColumns"
-    InitalizeLabelPicture Me.lblRemapToPicture, "DatasheetColumnRename"
+    InitalizeLabelPicture Me.lblCurrentColumnPicture, MSO_CURRENT_COLUMN
+    InitalizeLabelPicture Me.lblRemapToPicture, MSO_REMAP_TO
 End Sub
 
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
-    Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
+    Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, MSO_SIZE, MSO_SIZE)
 End Sub
 
 Private Sub UpdateControls()

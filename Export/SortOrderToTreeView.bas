@@ -1,17 +1,6 @@
 Attribute VB_Name = "SortOrderToTreeView"
-'@Folder "MVVM.SortOrder.ValueConverters"
+'@Folder "MVVM.ValueConverters"
 Option Explicit
-
-Private Const ORPHAN_LISTOBJECT_NAME As String = "(Orphaned)"
-Private Const GREY_TEXT_COLOR As Long = 12632256 'RGB(192,192,192)
-Private Const SUFFIX_CURRENTLY_ACTIVE  As String = " (active)"
-Private Const SUFFIX_SELECTED_LISTOBJECT As String = " (selected)"
-Private Const UNSAVED_SORTORDER As String = "(current sort order)"
-Private Const NO_STATES_FOUND As String = "No saved Sort Order States found."
-Private Const MSO_WORKBOOK As String = "FileSaveAsExcelXlsx"
-Private Const MSO_LISTOBJECT As String = "CreateTable"
-Private Const MSO_LISTOBJECT_SELECTED As String = "InlineEditMenu"
-Private Const MSO_SORTORDER As String = "SortDialog"
 
 Public Sub InitializeTreeView(ByVal TreeView As TreeView)
     With TreeView
@@ -40,7 +29,7 @@ End Sub
 
 Private Sub LoadWorkbookNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
     Dim Node As Node
-    Set Node = TreeView.Nodes.Add(Key:="ROOT", text:=ViewModel.Workbook.Name, Image:=MSO_WORKBOOK)
+    Set Node = TreeView.Nodes.Add(Key:=KEY_ROOT, text:=ViewModel.Workbook.Name, Image:=MSO_WORKBOOK)
     Node.Expanded = True
 End Sub
 
@@ -67,11 +56,11 @@ Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal Tre
     Next SortOrderState
     
     If HasOrphans Then
-        ListObjectNames.Add ORPHAN_LISTOBJECT_NAME
+        ListObjectNames.Add CAPTION_ORPHAN
     End If
     
     Dim ParentNode As Node
-    Set ParentNode = TreeView.Nodes.Item("ROOT")
+    Set ParentNode = TreeView.Nodes.Item(KEY_ROOT)
     
     Dim Node As Node
     Dim ListObjectNameVariant As Variant
@@ -84,9 +73,9 @@ Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal Tre
         Node.Expanded = True
     Next ListObjectNameVariant
     
-    If Node.text = ORPHAN_LISTOBJECT_NAME Then
+    If Node.text = CAPTION_ORPHAN Then
         Node.ForeColor = GREY_TEXT_COLOR
-        Node.Image = "WorkflowPending"
+        Node.Image = MSO_ORPHAN_TABLE
     End If
 End Sub
 
@@ -95,12 +84,12 @@ Private Sub AddUnsavedSortStateNode(ByVal ViewModel As SortOrderViewModel, ByVal
         Dim Node As Node
         Set Node = TreeView.Nodes.Add(Relative:=TreeView.Nodes.Item(2), _
                                       Relationship:=tvwChild, _
-                                      Key:="UNSAVED", _
-                                      text:=UNSAVED_SORTORDER, _
+                                      Key:=KEY_UNSAVED, _
+                                      text:=CAPTION_UNSAVED_SORTORDER, _
                                       Image:=MSO_SORTORDER)
         Node.Bold = True
         Node.Selected = True
-        ViewModel.TrySelect "UNSAVED"
+        ViewModel.TrySelect KEY_UNSAVED
     End If
 End Sub
 
@@ -114,7 +103,7 @@ Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal
         If ExistsInCollection(AllListObjects, SortOrderState.ListObjectName) Then
             Set ParentNode = TreeView.Nodes.Item(SortOrderState.ListObjectName)
         Else
-            Set ParentNode = TreeView.Nodes.Item(ORPHAN_LISTOBJECT_NAME)
+            Set ParentNode = TreeView.Nodes.Item(CAPTION_ORPHAN)
         End If
        
         Dim Node As Node
@@ -139,14 +128,14 @@ Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal
        
         If Not ViewModel.CurrentSortState Is Nothing Then
             If SortOrderState.Equals(ViewModel.CurrentSortState) Then
-                Node.text = Node.text & SUFFIX_CURRENTLY_ACTIVE
+                Node.text = Node.text & SUFFIX_ACTIVE
                 Node.Bold = True
                 Node.Selected = True
                 ' Make sure that selecting a sort order to preview will never update the treeview
                 ' list of all sort orders, or it will start a recursive loop.
                 ViewModel.TrySelect SortOrderState.ToBase64
                 
-                TreeView.Nodes.Remove "UNSAVED"
+                TreeView.Nodes.Remove KEY_UNSAVED
             End If
         End If
         
@@ -164,7 +153,7 @@ End Sub
 Private Sub UpdateListObjectIcons(ByVal TreeView As TreeView)
     ' .Item(2) should always be the target ListObject
     With TreeView.Nodes.Item(2)
-        .text = .text & SUFFIX_SELECTED_LISTOBJECT
+        .text = .text & SUFFIX_SELECTED
         .Image = MSO_LISTOBJECT_SELECTED
     End With
 End Sub
@@ -178,9 +167,9 @@ Private Sub CheckNoSortOrderStatesFound(ByVal TreeView As TreeView)
     End If
     
     Dim Node As Node
-    Set Node = TreeView.Nodes.Add(Relative:=TreeView.Nodes.Item("ROOT"), _
+    Set Node = TreeView.Nodes.Add(Relative:=TreeView.Nodes.Item(KEY_ROOT), _
                                   Relationship:=tvwChild, _
-                                  text:=NO_STATES_FOUND)
+                                  text:=CAPTION_NO_STATES_FOUND)
     Node.ForeColor = GREY_TEXT_COLOR
 End Sub
 
@@ -206,5 +195,4 @@ Private Sub TrySelectSelectedNode(ByVal ViewModel As SortOrderViewModel, ByVal T
         ViewModel.TrySelect TreeView.SelectedItem.Key
     End If
 End Sub
-
 

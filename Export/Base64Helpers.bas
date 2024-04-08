@@ -1,5 +1,5 @@
 Attribute VB_Name = "Base64Helpers"
-'@Folder "MVVM.SortOrder.Helpers"
+'@Folder "Helpers.Common"
 Option Explicit
 
 Public Function StringtoBase64(ByVal StringValue As String) As String

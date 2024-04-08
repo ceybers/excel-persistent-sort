@@ -1,5 +1,5 @@
 Attribute VB_Name = "RangeToListObject"
-'@Folder "MVVM.SortOrder.Helpers"
+'@Folder "Helpers.Objects"
 Option Explicit
 
 '@Description "Returns the name of a ListColumn if a Range intersects with a given ListObject."

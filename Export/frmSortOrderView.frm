@@ -13,14 +13,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'@Folder "MVVM.SortOrder.Views"
+'@Folder "MVVM.Views"
 Option Explicit
 Implements IView
 
-Private Const MSG_TITLE As String = "Persistent Sort Order Tool"
-Private Const MSG_REMOVE_STATE As String = "Remove this Sort Order state?"
-Private Const MSG_REMOVE_ALL_STATES As String = "Remove ALL Sort Order states?"
-Private Const MSG_EXPORT_SORTORDER As String = "Sort Order State in Base64 format:"
+Private Const MSO_SIZE As Long = 24
 
 Private Type TState
     IsCancelled As Boolean
@@ -35,7 +32,7 @@ End Sub
 
 Private Sub cboImport_Click()
     Dim SortOrderStateString As String
-    SortOrderStateString = InputBox(MSG_EXPORT_SORTORDER, MSG_TITLE)
+    SortOrderStateString = InputBox(MSG_EXPORT_SORTORDER, APP_TITLE)
     This.ViewModel.TryImport SortOrderStateString
     UpdateControls
 End Sub
@@ -69,7 +66,7 @@ Private Sub cmbClose_Click()
 End Sub
 
 Private Sub cmbExport_Click()
-    InputBox MSG_EXPORT_SORTORDER, MSG_TITLE, This.ViewModel.SelectedSortState.ToBase64
+    InputBox MSG_EXPORT_SORTORDER, APP_TITLE, This.ViewModel.SelectedSortState.ToBase64
 End Sub
 
 Private Sub cmbPrune_Click()
@@ -81,7 +78,7 @@ End Sub
 Private Sub cmbRemove_Click()
     If vbNo = MsgBox(MSG_REMOVE_STATE, _
                      vbExclamation + vbYesNo + vbDefaultButton2, _
-                     MSG_TITLE) Then
+                     APP_TITLE) Then
         Exit Sub
     End If
     
@@ -93,7 +90,7 @@ End Sub
 Private Sub cmbRemoveAll_Click()
     If vbNo = MsgBox(MSG_REMOVE_ALL_STATES, _
                      vbExclamation + vbYesNo + vbDefaultButton2, _
-                     MSG_TITLE) Then
+                     APP_TITLE) Then
         Exit Sub
     End If
     
@@ -170,7 +167,7 @@ Private Sub UpdateSelectedTable()
     Me.cmbSave.Enabled = This.ViewModel.CurrentSortState.HasSortOrder
     
     Me.cmbSave.Enabled = This.ViewModel.CanSave
-    Me.cmbSave.Caption = IIf(This.ViewModel.CanSave, "Save", "Saved")
+    Me.cmbSave.Caption = IIf(This.ViewModel.CanSave, CAPTION_DO_SAVE, CAPTION_ALREADY_SAVED)
 End Sub
 
 Private Sub UpdateTreeView()
@@ -183,7 +180,7 @@ End Sub
 
 Private Sub UpdateListView()
     SortOrderToListView.Load This.ViewModel, Me.lvPreview
-    Me.cmbApply.Caption = "Apply"
+    Me.cmbApply.Caption = CAPTION_DO_APPLY
     Me.cmbApply.Enabled = False
     Me.cmbExport.Enabled = False
     Me.cmbRemove.Enabled = False
@@ -192,7 +189,7 @@ Private Sub UpdateListView()
     Me.cmbExport.Enabled = True
     
     If This.ViewModel.SelectedSortState.CanApply(This.ViewModel.ListObject) Then
-        Me.cmbApply.Caption = "Apply"
+        Me.cmbApply.Caption = CAPTION_DO_APPLY
         Me.cmbApply.Enabled = True
     End If
     
@@ -206,14 +203,14 @@ Private Sub UpdateListView()
     ' Check if SelectedSortState is already applied as CurrentSortState
     If Not This.ViewModel.CurrentSortState Is Nothing Then
         If This.ViewModel.SelectedSortState.Equals(This.ViewModel.CurrentSortState) Then
-            Me.cmbApply.Caption = "Applied"
+            Me.cmbApply.Caption = CAPTION_ALREADY_APPLIED
             Me.cmbApply.Enabled = False
         End If
     End If
     
     Me.cmbRemove.Enabled = True
     
-    If Me.tvStates.SelectedItem.Key = "UNSAVED" Then
+    If Me.tvStates.SelectedItem.Key = KEY_UNSAVED Then
         Me.cmbRemove.Enabled = False
     End If
 End Sub
@@ -226,14 +223,14 @@ Private Sub InitializeOptions()
 End Sub
 
 Private Sub InitalizeLabelPictures()
-    InitalizeLabelPicture Me.lblOptionsPicture, "AdvancedFileProperties"
-    InitalizeLabelPicture Me.lblPreviewSortOrderPicture, "FindTaggedNotes"
-    InitalizeLabelPicture Me.lblSavedSortOrdersPicture, "SaveSelectionToQuickTablesGallery"
-    InitalizeLabelPicture Me.lblSelectedTablePicture, "TableAutoFormat"
+    InitalizeLabelPicture Me.lblOptionsPicture, MSO_OPTIONS
+    InitalizeLabelPicture Me.lblPreviewSortOrderPicture, MSO_PREVIEW_ORDERS
+    InitalizeLabelPicture Me.lblSavedSortOrdersPicture, MSO_SAVED_ORDERS
+    InitalizeLabelPicture Me.lblSelectedTablePicture, MSO_SELECTED_TABLE
 End Sub
 
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
-    Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
+    Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, MSO_SIZE, MSO_SIZE)
 End Sub
 
 

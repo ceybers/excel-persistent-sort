@@ -1,11 +1,11 @@
-Attribute VB_Name = "modMain"
-'@Folder "SortOrderState"
+Attribute VB_Name = "Main"
+'@Folder "PersistentSortOrder"
 Option Explicit
 
 '@EntryPoint "Open UI for PersistentSortOrderTool"
-Public Sub PersistentSortOrderTool()
+Public Sub RunPersistentSortOrderTool()
     If Selection.ListObject Is Nothing Then
-        MsgBox "Select a table before running Persistent Sort Order Tool.", vbExclamation, "Persistent Sort Order Tool"
+        MsgBox MSG_SELECT_TABLE_FIRST, vbExclamation + vbOKOnly, APP_TITLE
         Exit Sub
     End If
     
