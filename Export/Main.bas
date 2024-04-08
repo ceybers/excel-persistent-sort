@@ -4,11 +4,8 @@ Option Explicit
 
 '@EntryPoint "Open UI for PersistentSortOrderTool"
 Public Sub RunPersistentSortOrderTool()
-<<<<<<< HEAD
-=======
     On Error GoTo ErrorHandler
     
->>>>>>> dev
     If Selection.ListObject Is Nothing Then
         MsgBox MSG_SELECT_TABLE_FIRST, vbExclamation + vbOKOnly, APP_TITLE
         Exit Sub
