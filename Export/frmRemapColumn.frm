@@ -71,8 +71,8 @@ Private Sub InitalizeFromViewModel()
 End Sub
 
 Private Sub InitalizeLabelPictures()
-    InitalizeLabelPicture Me.lblCurrentColumnPicture, MSO_CURRENT_COLUMN
-    InitalizeLabelPicture Me.lblRemapToPicture, MSO_REMAP_TO
+    'InitalizeLabelPicture Me.lblCurrentColumnPicture, MSO_CURRENT_COLUMN
+    'InitalizeLabelPicture Me.lblRemapToPicture, MSO_REMAP_TO
 End Sub
 
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)

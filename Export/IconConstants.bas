@@ -11,13 +11,13 @@ Public Const MSO_SORT_UP As String = "SortUp"
 Public Const MSO_SORTORDER As String = "SortDialog"
 Public Const MSO_WORKBOOK As String = "FileSaveAsExcelXlsx"
 
-Public Const MSO_OPTIONS As String = "AdvancedFileProperties"
-Public Const MSO_PREVIEW_ORDERS As String = "FindTaggedNotes"
-Public Const MSO_SAVED_ORDERS As String = "SaveSelectionToQuickTablesGallery"
-Public Const MSO_SELECTED_TABLE As String = "TableAutoFormat"
+'Public Const MSO_OPTIONS As String = "AdvancedFileProperties"
+'Public Const MSO_PREVIEW_ORDERS As String = "FindTaggedNotes"
+'Public Const MSO_SAVED_ORDERS As String = "SaveSelectionToQuickTablesGallery"
+'Public Const MSO_SELECTED_TABLE As String = "TableAutoFormat"
 
-Public Const MSO_CURRENT_COLUMN As String = "GroupFieldsAndColumns"
-Public Const MSO_REMAP_TO As String = "DatasheetColumnRename"
+'Public Const MSO_CURRENT_COLUMN As String = "GroupFieldsAndColumns"
+'Public Const MSO_REMAP_TO As String = "DatasheetColumnRename"
 
 Public Const MSO_ORPHAN_TABLE As String = "WorkflowPending"
 

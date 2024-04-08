@@ -224,10 +224,10 @@ Private Sub InitializeOptions()
 End Sub
 
 Private Sub InitalizeLabelPictures()
-    InitalizeLabelPicture Me.lblOptionsPicture, MSO_OPTIONS
-    InitalizeLabelPicture Me.lblPreviewSortOrderPicture, MSO_PREVIEW_ORDERS
-    InitalizeLabelPicture Me.lblSavedSortOrdersPicture, MSO_SAVED_ORDERS
-    InitalizeLabelPicture Me.lblSelectedTablePicture, MSO_SELECTED_TABLE
+    'InitalizeLabelPicture Me.lblOptionsPicture, MSO_OPTIONS
+    'InitalizeLabelPicture Me.lblPreviewSortOrderPicture, MSO_PREVIEW_ORDERS
+    'InitalizeLabelPicture Me.lblSavedSortOrdersPicture, MSO_SAVED_ORDERS
+    'InitalizeLabelPicture Me.lblSelectedTablePicture, MSO_SELECTED_TABLE
 End Sub
 
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
