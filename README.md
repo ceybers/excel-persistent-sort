@@ -17,6 +17,7 @@ Sometimes Excel will reset the Sort Order of the columns in the Table you are wo
 ![Screenshot of column remapping](images/Screenshot02.PNG)
 
 ## 📝 Notes
+- 📃 [Change Log](Notes/ChangeLog.md)
 - 🚧 [TODO List](Notes/TODO.md)
 - ☕ [Dev Notes](Notes/DevNotes.md)
 

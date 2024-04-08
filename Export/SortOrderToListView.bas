@@ -1,20 +1,18 @@
 Attribute VB_Name = "SortOrderToListView"
-'@Folder "MVVM.SortOrder.ValueConverters"
+'@Folder "MVVM.ValueConverters"
 Option Explicit
 
-Private Const MSO_COLUMN_EXISTS As String = "AcceptInvitation"
-Private Const MSO_COLUMN_NOT_EXISTS As String = "DeclineInvitation"
-Private Const MSO_SORT_UP As String = "SortUp"
-Private Const MSO_SORT_DOWN As String = "SortDown"
-
-Public Sub InitializeListView(ByVal ListView As ListView)
+Public Sub InitializeListView(ByVal ListView As MSComctllib.ListView)
     With ListView
         .ListItems.Clear
-        .ColumnHeaders.Clear
-        .ColumnHeaders.Add text:="#", Width:=24
-        .ColumnHeaders.Add text:="Column Name", Width:=80
-        .ColumnHeaders.Add text:="Direction", Width:=40
-        .ColumnHeaders.Add text:="Sort On", Width:=64
+        With .ColumnHeaders
+            .Clear
+            .Add Text:=COLUMN_INDEX, Width:=24
+            .Add Text:=COLUMN_NAME, Width:=80
+            .Add Text:=COLUMN_DIRECTION, Width:=40
+            .Add Text:=COLUMN_SORT_ON, Width:=64
+        End With
+        
         .Appearance = cc3D
         .BorderStyle = ccNone
         .Gridlines = True
@@ -26,7 +24,7 @@ Public Sub InitializeListView(ByVal ListView As ListView)
     End With
 End Sub
 
-Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal ListView As ListView)
+Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal ListView As MSComctllib.ListView)
     ListView.ListItems.Clear
     If ViewModel.SelectedSortState Is Nothing Then Exit Sub
     
@@ -38,27 +36,27 @@ End Sub
 
 Private Sub LoadSortFieldStateToListView(ByVal ListView As ListView, ByVal SortFieldState As SortFieldState)
     Dim ListItem As ListItem
-    Set ListItem = ListView.ListItems.Add(text:=CStr(SortFieldState.Priority), SmallIcon:=MSO_COLUMN_EXISTS)
+    Set ListItem = ListView.ListItems.Add(Text:=CStr(SortFieldState.Priority), SmallIcon:=MSO_COLUMN_EXISTS)
     
-    ListItem.ListSubItems.Add text:=SortFieldState.ColumnName
+    ListItem.ListSubItems.Add Text:=SortFieldState.ColumnName
     If SortFieldState.Order = 0 Then
-        ListItem.ListSubItems.Add text:="Desc", ReportIcon:=MSO_SORT_DOWN
+        ListItem.ListSubItems.Add Text:=ITEM_DIRECTION_DESC, ReportIcon:=MSO_SORT_DOWN
     Else
-        ListItem.ListSubItems.Add text:="Asc", ReportIcon:=MSO_SORT_UP
+        ListItem.ListSubItems.Add Text:=ITEM_DIRECTION_ASC, ReportIcon:=MSO_SORT_UP
     End If
     
     Select Case SortFieldState.SortOn
     Case xlSortOnCellColor
-        ListItem.ListSubItems.Add text:="Cell Color", ReportIcon:="FontFillBackColorPicker"
+        ListItem.ListSubItems.Add Text:=ITEM_CELL_COLOR, ReportIcon:=MSO_CELL_COLOR
     Case xlSortOnFontColor
-        ListItem.ListSubItems.Add text:="Font Color", ReportIcon:="GroupFont"
+        ListItem.ListSubItems.Add Text:=ITEM_FONT_COLOR, ReportIcon:=MSO_FONT_COLOR
     Case xlSortOnIcon
-        ListItem.ListSubItems.Add text:="Icon", ReportIcon:="ConditionalFormattingIconSetsGallery"
+        ListItem.ListSubItems.Add Text:=ITEM_ICON, ReportIcon:=MSO_ICON
     Case xlSortOnValues
         If SortFieldState.CustomOrder = Empty Then
-            ListItem.ListSubItems.Add text:="Values", ReportIcon:="ChangeCaseDialogClassic"
+            ListItem.ListSubItems.Add Text:=ITEM_VALUES, ReportIcon:=MSO_VALUES
         Else
-            ListItem.ListSubItems.Add text:="Values (Custom)", ReportIcon:="ContentControlDropDownList"
+            ListItem.ListSubItems.Add Text:=ITEM_VALUES_CUSTOM, ReportIcon:=MSO_VALUES_CUSTOM
         End If
     End Select
     
@@ -66,4 +64,3 @@ Private Sub LoadSortFieldStateToListView(ByVal ListView As ListView, ByVal SortF
         ListItem.SmallIcon = MSO_COLUMN_NOT_EXISTS
     End If
 End Sub
-

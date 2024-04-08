@@ -1,4 +1,5 @@
 Attribute VB_Name = "CustomXMLNodeHelpers"
+'@IgnoreModule AssignmentNotUsed
 '@Folder "PersistentStorage.XMLSettings"
 Option Explicit
 
@@ -10,7 +11,7 @@ Public Sub UpsertText(ByVal CustomXMLPart As CustomXMLPart, ByVal XPath As Strin
     If Result Is Nothing Then
         Set Result = GetOrCreateXPath(CustomXMLPart, XPath)
     End If
-    Result.text = vNewValue
+    Result.Text = vNewValue
 End Sub
 
 Public Sub UpsertCollection(ByVal CustomXMLPart As CustomXMLPart, ByVal XPath As String, ByVal vNewCollection As Collection)

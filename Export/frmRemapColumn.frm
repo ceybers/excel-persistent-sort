@@ -13,9 +13,12 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'@Folder("MVVM.SortOrder.Views")
+'@IgnoreModule HungarianNotation
+'@Folder "MVVM.Views"
 Option Explicit
 Implements IView
+
+Private Const MSO_SIZE As Long = 24
 
 Private Type TState
     IsCancelled As Boolean
@@ -24,8 +27,16 @@ End Type
 
 Private This As TState
 
-Private Sub lvRemapTo_ItemClick(ByVal Item As MSComctlLib.ListItem)
-    This.ViewModel.TrySelect Item.text
+Private Sub cmbRemap_Click()
+    Me.Hide
+End Sub
+
+Private Sub cmbCancel_Click()
+    OnCancel
+End Sub
+
+Private Sub lvRemapTo_ItemClick(ByVal Item As MSComctllib.ListItem)
+    This.ViewModel.TrySelect Item.Text
     UpdateControls
 End Sub
 
@@ -60,24 +71,15 @@ Private Sub InitalizeFromViewModel()
 End Sub
 
 Private Sub InitalizeLabelPictures()
-    InitalizeLabelPicture Me.lblCurrentColumnPicture, "GroupFieldsAndColumns"
-    InitalizeLabelPicture Me.lblRemapToPicture, "DatasheetColumnRename"
+    InitalizeLabelPicture Me.lblCurrentColumnPicture, MSO_CURRENT_COLUMN
+    InitalizeLabelPicture Me.lblRemapToPicture, MSO_REMAP_TO
 End Sub
 
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
-    Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, 24, 24)
-End Sub
-
-Private Sub cmbRemap_Click()
-    Me.Hide
-End Sub
-
-Private Sub cmbClose_Click()
-    OnCancel
+    Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, MSO_SIZE, MSO_SIZE)
 End Sub
 
 Private Sub UpdateControls()
-    Me.txtColumnName = This.ViewModel.CurrentColumnName
+    Me.txtColumnName.Text = This.ViewModel.CurrentColumnName
     Me.cmbRemap.Enabled = (This.ViewModel.SelectedColumnName <> Empty)
 End Sub
-

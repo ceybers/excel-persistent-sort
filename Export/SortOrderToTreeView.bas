@@ -1,19 +1,8 @@
 Attribute VB_Name = "SortOrderToTreeView"
-'@Folder "MVVM.SortOrder.ValueConverters"
+'@Folder "MVVM.ValueConverters"
 Option Explicit
 
-Private Const ORPHAN_LISTOBJECT_NAME As String = "(Orphaned)"
-Private Const GREY_TEXT_COLOR As Long = 12632256 'RGB(192,192,192)
-Private Const SUFFIX_CURRENTLY_ACTIVE  As String = " (active)"
-Private Const SUFFIX_SELECTED_LISTOBJECT As String = " (selected)"
-Private Const UNSAVED_SORTORDER As String = "(current sort order)"
-Private Const NO_STATES_FOUND As String = "No saved Sort Order States found."
-Private Const MSO_WORKBOOK As String = "FileSaveAsExcelXlsx"
-Private Const MSO_LISTOBJECT As String = "CreateTable"
-Private Const MSO_LISTOBJECT_SELECTED As String = "InlineEditMenu"
-Private Const MSO_SORTORDER As String = "SortDialog"
-
-Public Sub InitializeTreeView(ByVal TreeView As TreeView)
+Public Sub InitializeTreeView(ByVal TreeView As MSComctllib.TreeView)
     With TreeView
         .Nodes.Clear
         .FullRowSelect = False
@@ -26,7 +15,7 @@ Public Sub InitializeTreeView(ByVal TreeView As TreeView)
     End With
 End Sub
 
-Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
+Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As MSComctllib.TreeView)
     TreeView.Nodes.Clear
     LoadWorkbookNode ViewModel, TreeView
     LoadListObjectNodes ViewModel, TreeView
@@ -38,13 +27,13 @@ Public Sub Load(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeVie
     TrySelectSelectedNode ViewModel, TreeView
 End Sub
 
-Private Sub LoadWorkbookNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
+Private Sub LoadWorkbookNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As MSComctllib.TreeView)
     Dim Node As Node
-    Set Node = TreeView.Nodes.Add(Key:="ROOT", text:=ViewModel.Workbook.Name, Image:=MSO_WORKBOOK)
+    Set Node = TreeView.Nodes.Add(Key:=KEY_ROOT, Text:=ViewModel.Workbook.Name, Image:=MSO_WORKBOOK)
     Node.Expanded = True
 End Sub
 
-Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
+Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As MSComctllib.TreeView)
     Dim ListObjectNames As Collection
     Set ListObjectNames = New Collection
     ListObjectNames.Add ViewModel.ListObject.Name
@@ -67,44 +56,46 @@ Private Sub LoadListObjectNodes(ByVal ViewModel As SortOrderViewModel, ByVal Tre
     Next SortOrderState
     
     If HasOrphans Then
-        ListObjectNames.Add ORPHAN_LISTOBJECT_NAME
+        ListObjectNames.Add CAPTION_ORPHAN
     End If
     
     Dim ParentNode As Node
-    Set ParentNode = TreeView.Nodes.Item("ROOT")
+    Set ParentNode = TreeView.Nodes.Item(KEY_ROOT)
     
     Dim Node As Node
     Dim ListObjectNameVariant As Variant
     For Each ListObjectNameVariant In ListObjectNames
-        Set Node = TreeView.Nodes.Add(Relative:=ParentNode, _
-                                      Relationship:=tvwChild, _
-                                      Key:=ListObjectNameVariant, _
-                                      text:=ListObjectNameVariant, _
-                                      Image:=MSO_LISTOBJECT)
+        Set Node = TreeView.Nodes.Add( _
+            Relative:=ParentNode, _
+            Relationship:=tvwChild, _
+            Key:=ListObjectNameVariant, _
+            Text:=ListObjectNameVariant, _
+            Image:=MSO_LISTOBJECT)
         Node.Expanded = True
     Next ListObjectNameVariant
     
-    If Node.text = ORPHAN_LISTOBJECT_NAME Then
+    If Node.Text = CAPTION_ORPHAN Then
         Node.ForeColor = GREY_TEXT_COLOR
-        Node.Image = "WorkflowPending"
+        Node.Image = MSO_ORPHAN_TABLE
     End If
 End Sub
 
-Private Sub AddUnsavedSortStateNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
+Private Sub AddUnsavedSortStateNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As MSComctllib.TreeView)
     If ViewModel.CurrentSortState.HasSortOrder Then
         Dim Node As Node
-        Set Node = TreeView.Nodes.Add(Relative:=TreeView.Nodes.Item(2), _
-                                      Relationship:=tvwChild, _
-                                      Key:="UNSAVED", _
-                                      text:=UNSAVED_SORTORDER, _
-                                      Image:=MSO_SORTORDER)
+        Set Node = TreeView.Nodes.Add( _
+            Relative:=TreeView.Nodes.Item(2), _
+            Relationship:=tvwChild, _
+            Key:=KEY_UNSAVED, _
+            Text:=CAPTION_UNSAVED_SORTORDER, _
+            Image:=MSO_SORTORDER)
         Node.Bold = True
         Node.Selected = True
-        ViewModel.TrySelect "UNSAVED"
+        ViewModel.TrySelect KEY_UNSAVED
     End If
 End Sub
 
-Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
+Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As MSComctllib.TreeView)
     Dim AllListObjects As Collection
     Set AllListObjects = GetAllListObjects(ViewModel.Workbook)
     
@@ -114,15 +105,16 @@ Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal
         If ExistsInCollection(AllListObjects, SortOrderState.ListObjectName) Then
             Set ParentNode = TreeView.Nodes.Item(SortOrderState.ListObjectName)
         Else
-            Set ParentNode = TreeView.Nodes.Item(ORPHAN_LISTOBJECT_NAME)
+            Set ParentNode = TreeView.Nodes.Item(CAPTION_ORPHAN)
         End If
        
         Dim Node As Node
-        Set Node = TreeView.Nodes.Add(Relative:=ParentNode, _
-                                      Relationship:=tvwChild, _
-                                      Key:=SortOrderState.ToBase64, _
-                                      text:=SortOrderState.GetCaption, _
-                                      Image:=MSO_SORTORDER)
+        Set Node = TreeView.Nodes.Add( _
+            Relative:=ParentNode, _
+            Relationship:=tvwChild, _
+            Key:=SortOrderState.ToBase64, _
+            Text:=SortOrderState.GetCaption, _
+            Image:=MSO_SORTORDER)
         If TreeView.SelectedItem Is Nothing Then
             Node.Selected = True
         End If
@@ -139,14 +131,14 @@ Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal
        
         If Not ViewModel.CurrentSortState Is Nothing Then
             If SortOrderState.Equals(ViewModel.CurrentSortState) Then
-                Node.text = Node.text & SUFFIX_CURRENTLY_ACTIVE
+                Node.Text = Node.Text & SUFFIX_ACTIVE
                 Node.Bold = True
                 Node.Selected = True
                 ' Make sure that selecting a sort order to preview will never update the treeview
                 ' list of all sort orders, or it will start a recursive loop.
                 ViewModel.TrySelect SortOrderState.ToBase64
                 
-                TreeView.Nodes.Remove "UNSAVED"
+                TreeView.Nodes.Remove KEY_UNSAVED
             End If
         End If
         
@@ -161,15 +153,15 @@ Private Sub LoadSortOrderStateNodes(ByVal ViewModel As SortOrderViewModel, ByVal
     Next SortOrderState
 End Sub
 
-Private Sub UpdateListObjectIcons(ByVal TreeView As TreeView)
+Private Sub UpdateListObjectIcons(ByVal TreeView As MSComctllib.TreeView)
     ' .Item(2) should always be the target ListObject
     With TreeView.Nodes.Item(2)
-        .text = .text & SUFFIX_SELECTED_LISTOBJECT
+        .Text = .Text & SUFFIX_SELECTED
         .Image = MSO_LISTOBJECT_SELECTED
     End With
 End Sub
 
-Private Sub CheckNoSortOrderStatesFound(ByVal TreeView As TreeView)
+Private Sub CheckNoSortOrderStatesFound(ByVal TreeView As MSComctllib.TreeView)
     If TreeView.Nodes.Count > 2 Then Exit Sub
     
     ' Remove manually added node for target ListObject
@@ -178,13 +170,14 @@ Private Sub CheckNoSortOrderStatesFound(ByVal TreeView As TreeView)
     End If
     
     Dim Node As Node
-    Set Node = TreeView.Nodes.Add(Relative:=TreeView.Nodes.Item("ROOT"), _
-                                  Relationship:=tvwChild, _
-                                  text:=NO_STATES_FOUND)
+    Set Node = TreeView.Nodes.Add( _
+        Relative:=TreeView.Nodes.Item(KEY_ROOT), _
+        Relationship:=tvwChild, _
+        Text:=CAPTION_NO_STATES_FOUND)
     Node.ForeColor = GREY_TEXT_COLOR
 End Sub
 
-Private Sub RemoveEmptyListObjectNodes(ByVal TreeView As TreeView)
+Private Sub RemoveEmptyListObjectNodes(ByVal TreeView As MSComctllib.TreeView)
     Dim NodesToDelete As Collection
     Set NodesToDelete = New Collection
     
@@ -201,10 +194,9 @@ Private Sub RemoveEmptyListObjectNodes(ByVal TreeView As TreeView)
     Next NodeKey
 End Sub
 
-Private Sub TrySelectSelectedNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As TreeView)
+Private Sub TrySelectSelectedNode(ByVal ViewModel As SortOrderViewModel, ByVal TreeView As MSComctllib.TreeView)
     If Not TreeView.SelectedItem Is Nothing Then
         ViewModel.TrySelect TreeView.SelectedItem.Key
     End If
 End Sub
-
 

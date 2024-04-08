@@ -1,28 +1,28 @@
 VERSION 5.00
 Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} frmAbout 
-   Caption         =   "About Persistent Sort Order Tool"
-   ClientHeight    =   1845
+   Caption         =   "About Table Transfer Tool"
+   ClientHeight    =   3255
    ClientLeft      =   120
    ClientTop       =   465
-   ClientWidth     =   3990
+   ClientWidth     =   4500
    OleObjectBlob   =   "frmAbout.frx":0000
-   StartUpPosition =   1  'CenterOwner
+   StartUpPosition =   2  'CenterScreen
 End
 Attribute VB_Name = "frmAbout"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-'@Folder "MVVM.SortOrder.Views"
+'@IgnoreModule HungarianNotation
+'@Folder "MVVM.Views"
 Option Explicit
 
-Private Sub cmbClose_Click()
+Private Sub cboClose_Click()
     Me.Hide
 End Sub
 
 Private Sub UserForm_Activate()
-    Dim Picture As IPictureDisp
-    Set Picture = Application.CommandBars.GetImageMso("CreateTableInDesignView", 32, 32)
-    Set Me.lblPicHeader.Picture = Picture
+    Me.lblHeader.Caption = APP_TITLE
+    Me.lblVersion.Caption = APP_VERSION
+    Me.lblCopyright.Caption = "Copyright " & ChrW$(169) & " " & APP_COPYRIGHT
 End Sub
-

@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'@IgnoreModule EmptyMethod, ProcedureNotUsed
 '@PredeclaredId
 '@Folder "PersistentStorage.XMLSettings"
 Option Explicit
@@ -53,7 +54,7 @@ Private Function ISettings_GetFlag(ByVal FlagName As String) As Boolean
     Set Result = GetCustomXMLPart.SelectSingleNode(XPath)
     
     If Not Result Is Nothing Then
-        Select Case UCase$(Result.text)
+        Select Case UCase$(Result.Text)
         Case TRUE_SYMBOL:
             ISettings_GetFlag = True
         Case FALSE_SYMBOL:
@@ -79,7 +80,7 @@ Private Function ISettings_GetSetting(ByVal SettingName As String) As String
     Set Result = GetCustomXMLPart.SelectSingleNode(XPath)
     
     If Not Result Is Nothing Then
-        ISettings_GetSetting = Result.text
+        ISettings_GetSetting = Result.Text
     End If
 End Function
 
@@ -102,7 +103,7 @@ Private Function ISettings_GetCollection(ByVal CollectionName As String) As Coll
     If Not Results Is Nothing Then
         Dim Item As CustomXMLNode
         For Each Item In Results
-            ISettings_GetCollection.Add Item:=Item.text
+            ISettings_GetCollection.Add Item:=Item.Text
         Next
     End If
 End Function

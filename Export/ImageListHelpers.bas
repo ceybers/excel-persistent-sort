@@ -1,5 +1,5 @@
 Attribute VB_Name = "ImageListHelpers"
-'@Folder "MVVM.SortOrder.Helpers"
+'@Folder "Helpers.Controls"
 Option Explicit
 
 Private Const IMAGEMSO_SIZE As Long = 16

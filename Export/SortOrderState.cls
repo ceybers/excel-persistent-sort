@@ -7,11 +7,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder "SortOrderState"
+'@IgnoreModule ProcedureNotUsed
+'@Folder "MVVM.Model"
 Option Explicit
 
 Private Const TRIM_FIELD_NAME_LENGTH As Long = 16
-Private Const NO_SORT_ORDER As String = "(no sort order)"
 
 Private Type TState
     WorksheetName As String
@@ -174,7 +174,7 @@ Public Function GetCaption() As String
     If Len(Result) > 0 Then
         Result = Left$(Result, Len(Result) - 3)
     Else
-        Result = NO_SORT_ORDER
+        Result = CAPTION_NO_SORT_ORDER
     End If
     
     GetCaption = Result

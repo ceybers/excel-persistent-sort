@@ -1,5 +1,5 @@
 Attribute VB_Name = "modTESTDate"
-'@Folder("SortOrderState")
+'@Folder "Tests"
 Option Explicit
 
 Private Const XML_SETTINGS_NAME As String = "PersistentSortOrder"

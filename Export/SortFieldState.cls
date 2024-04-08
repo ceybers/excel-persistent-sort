@@ -7,7 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-'@Folder("SortOrderState")
+'@Folder "MVVM.Model"
 Option Explicit
 
 Private Type TState
@@ -135,5 +135,3 @@ Public Sub RemapColumnName(ByVal ColumnName As String)
     This.ColumnName = ColumnName
     This.Exists = True
 End Sub
-
-
