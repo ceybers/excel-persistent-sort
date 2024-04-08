@@ -131,8 +131,9 @@ Private Sub Reload()
     For Each SerializedSortOrder In SerializedSortOrders
         Dim SortOrderState As SortOrderState
         Set SortOrderState = New SortOrderState
-        SortOrderState.LoadFromString SerializedSortOrder, This.ListObject
-        This.SortOrderStates.Add SortOrderState
+        If SortOrderState.TryLoadFromString(SerializedSortOrder, This.ListObject) Then
+            This.SortOrderStates.Add SortOrderState
+        End If
     Next SerializedSortOrder
 End Sub
 
@@ -264,9 +265,15 @@ Private Sub AssociateSortOrderState(ByVal SortOrderState As SortOrderState)
 End Sub
 
 Public Sub TryImport(ByVal SortOrderStateString As String)
+    If SortOrderStateString = vbNullString Then
+        Exit Sub
+    End If
+    
     Dim SortOrderState As SortOrderState
     Set SortOrderState = New SortOrderState
-    SortOrderState.LoadFromString SortOrderStateString, This.ListObject
+    If Not SortOrderState.TryLoadFromString(SortOrderStateString, This.ListObject) Then
+        Exit Sub
+    End If
     
     If Exists(SortOrderState) Then
         Exit Sub

@@ -6,6 +6,8 @@ Public Const APP_TITLE As String = "Excel Persistent Sort Order Tool"
 Public Const APP_VERSION As String = "Version 1.2"
 Public Const APP_COPYRIGHT As String = "2024 Craig Eybers" & vbCrLf & "All rights reserved."
 
+Public Const ERR_UNKNOWN_ERROR As String = "Something went wrong with Persistent Sort Order Tool."
+
 Public Const MSG_REMOVE_STATE As String = "Remove this Sort Order state?"
 Public Const MSG_REMOVE_ALL_STATES As String = "Remove ALL Sort Order states?"
 Public Const MSG_EXPORT_SORTORDER As String = "Sort Order State in Base64 format:"
