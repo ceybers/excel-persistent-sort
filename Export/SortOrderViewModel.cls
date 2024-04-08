@@ -7,6 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+'@IgnoreModule ProcedureNotUsed
 '@Folder "MVVM.ViewModel"
 Option Explicit
 
@@ -363,4 +364,5 @@ Private Function GetAvailableColumnNames() As Collection
     
     Set GetAvailableColumnNames = Result
 End Function
+
 

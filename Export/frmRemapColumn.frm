@@ -13,6 +13,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'@IgnoreModule HungarianNotation
 '@Folder "MVVM.Views"
 Option Explicit
 Implements IView
@@ -34,8 +35,8 @@ Private Sub cmbCancel_Click()
     OnCancel
 End Sub
 
-Private Sub lvRemapTo_ItemClick(ByVal Item As MSComctlLib.ListItem)
-    This.ViewModel.TrySelect Item.text
+Private Sub lvRemapTo_ItemClick(ByVal Item As MSComctllib.ListItem)
+    This.ViewModel.TrySelect Item.Text
     UpdateControls
 End Sub
 
@@ -79,6 +80,6 @@ Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoNa
 End Sub
 
 Private Sub UpdateControls()
-    Me.txtColumnName = This.ViewModel.CurrentColumnName
+    Me.txtColumnName.Text = This.ViewModel.CurrentColumnName
     Me.cmbRemap.Enabled = (This.ViewModel.SelectedColumnName <> Empty)
 End Sub

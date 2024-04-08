@@ -13,6 +13,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'@IgnoreModule HungarianNotation
 '@Folder "MVVM.Views"
 Option Explicit
 Implements IView
@@ -109,13 +110,13 @@ Private Sub lblOptionsPicture_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
     frmAbout.Show
 End Sub
 
-Private Sub lvPreview_ItemClick(ByVal Item As MSComctlLib.ListItem)
+Private Sub lvPreview_ItemClick(ByVal Item As MSComctllib.ListItem)
     If This.ViewModel.TryRemapColumn(Item.Index) Then
         UpdateListView
     End If
 End Sub
 
-Private Sub tvStates_NodeClick(ByVal Node As MSComctlLib.Node)
+Private Sub tvStates_NodeClick(ByVal Node As MSComctllib.Node)
     This.ViewModel.TrySelect Node.Key
     
     UpdateListView
@@ -232,5 +233,4 @@ End Sub
 Private Sub InitalizeLabelPicture(ByVal Label As MSForms.Label, ByVal ImageMsoName As String)
     Set Label.Picture = Application.CommandBars.GetImageMso(ImageMsoName, MSO_SIZE, MSO_SIZE)
 End Sub
-
 

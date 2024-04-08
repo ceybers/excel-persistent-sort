@@ -3,7 +3,7 @@ Attribute VB_Name = "StringConstants"
 Option Explicit
 
 Public Const APP_TITLE As String = "Excel Persistent Sort Order Tool"
-Public Const APP_VERSION As String = "Version 12"
+Public Const APP_VERSION As String = "Version 1.2"
 Public Const APP_COPYRIGHT As String = "2024 Craig Eybers" & vbCrLf & "All rights reserved."
 
 Public Const MSG_REMOVE_STATE As String = "Remove this Sort Order state?"

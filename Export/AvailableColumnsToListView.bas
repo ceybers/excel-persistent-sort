@@ -2,11 +2,11 @@ Attribute VB_Name = "AvailableColumnsToListView"
 '@Folder "MVVM.ValueConverters"
 Option Explicit
 
-Public Sub InitializeListView(ByVal ListView As ListView)
+Public Sub InitializeListView(ByVal ListView As MSComctllib.ListView)
     With ListView
         .ListItems.Clear
         .ColumnHeaders.Clear
-        .ColumnHeaders.Add text:=COLUMN_NAME, Width:=ListView.Width - 16
+        .ColumnHeaders.Add Text:=COLUMN_NAME, Width:=ListView.Width - 16
         .Appearance = cc3D
         .BorderStyle = ccNone
         .Gridlines = True
@@ -18,7 +18,7 @@ Public Sub InitializeListView(ByVal ListView As ListView)
     End With
 End Sub
 
-Public Sub Load(ByVal ViewModel As RemapColumnViewModel, ByVal ListView As ListView)
+Public Sub Load(ByVal ViewModel As RemapColumnViewModel, ByVal ListView As MSComctllib.ListView)
     ListView.ListItems.Clear
     
     Dim ColumnName As Variant
@@ -28,6 +28,5 @@ Public Sub Load(ByVal ViewModel As RemapColumnViewModel, ByVal ListView As ListV
 End Sub
 
 Private Sub LoadColumnToListView(ByVal ListView As ListView, ByVal ColumnName As String)
-    Dim ListItem As ListItem
-    Set ListItem = ListView.ListItems.Add(text:=ColumnName)
+    ListView.ListItems.Add Text:=ColumnName
 End Sub
