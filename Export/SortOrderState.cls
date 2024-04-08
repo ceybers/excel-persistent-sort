@@ -62,9 +62,11 @@ Public Sub LoadFromListObject(ByVal ListObject As ListObject)
     Next i
 End Sub
 
-Public Sub LoadFromString(ByVal SerializedString As String, ByVal ListObject As ListObject)
+Public Function TryLoadFromString(ByVal SerializedString As String, ByVal ListObject As ListObject) As Boolean
     Dim SplitText() As String
     SplitText = Split(SerializedString, ":")
+    
+    If UBound(SplitText) <> 2 Then Exit Function
     
     This.WorksheetName = SplitText(0)
     This.ListObjectName = SplitText(1)
@@ -76,7 +78,9 @@ Public Sub LoadFromString(ByVal SerializedString As String, ByVal ListObject As 
     For i = LBound(SplitFields) To UBound(SplitFields)
         AddSortFieldSerialized SplitFields(i), (i + 1), ListObject
     Next i
-End Sub
+    
+    TryLoadFromString = True
+End Function
 
 Public Function CanApply(ByVal ListObject As ListObject) As Boolean
     Dim SortFieldState As SortFieldState
