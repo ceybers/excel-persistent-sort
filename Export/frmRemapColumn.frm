@@ -35,6 +35,13 @@ Private Sub cmbCancel_Click()
     OnCancel
 End Sub
 
+Private Sub lvRemapTo_DblClick()
+    ' TODO Proper Hit Test
+    If This.ViewModel.SelectedColumnName <> vbNullString Then
+        Me.Hide
+    End If
+End Sub
+
 Private Sub lvRemapTo_ItemClick(ByVal Item As MSComctllib.ListItem)
     This.ViewModel.TrySelect Item.Text
     UpdateControls
@@ -63,6 +70,8 @@ Private Function IView_ShowDialog(ByVal ViewModel As Object) As Boolean
     Me.Show
     
     IView_ShowDialog = Not This.IsCancelled
+    
+    Unload Me
 End Function
 
 Private Sub InitalizeFromViewModel()

@@ -1,4 +1,9 @@
 # Change Log
+## v1.3 (2024/04/03)
+- Fixed bug where closing the Remap Column dialog would crash Excel.
+- Added nicer icons.
+- Updated screenshots.
+
 ## v1.2 (2024/04/03)
 - Fixed Remap Column dialog Cancel button not working.
 - Behind the scenes house-keeping.

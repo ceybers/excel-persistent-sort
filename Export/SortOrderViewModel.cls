@@ -346,6 +346,9 @@ Public Function TryRemapColumn(ByVal Index As Long) As Boolean
         SortFieldState.RemapColumnName ViewModel.SelectedColumnName
         TryRemapColumn = True
     End If
+    
+    Set ViewAsInterface = Nothing
+    Set ViewModel = Nothing
 End Function
 
 Private Function GetAvailableColumnNames() As Collection
